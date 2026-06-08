@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parsa Madinei</title>
+<meta name="description" content="Parsa Madinei — PhD candidate at UC Santa Barbara working at the intersection of human visual cognition and vision-language models.">
+
+<!-- ===== Social / SEO ===== -->
+<meta property="og:title" content="Parsa Madinei">
+<meta property="og:description" content="PhD candidate at UC Santa Barbara. Efficient vision-language models, human gaze, and foveated perception.">
+<meta property="og:type" content="website">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --paper:    #F3F4F1;   /* cool neutral "lab paper" ground */
+    --paper-2:  #EAECE7;   /* slightly deeper surface */
+    --ink:      #17191C;   /* near-black, cool undertone */
+    --ink-soft: #383C42;
+    --muted:    #6A7077;   /* secondary text / periphery */
+    --hairline: #D9DBD5;
+    --fovea:    #DE5237;   /* warm coral — the single fixation accent */
+    --fovea-deep:#B53C23;
+    --maxw: 820px;
+  }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+  @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
+
+  body{
+    margin:0;
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"Inter", system-ui, -apple-system, sans-serif;
+    font-size:17px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+
+  a{ color:inherit; }
+
+  /* ---------- shared layout ---------- */
+  .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 28px; }
+
+  .eyebrow{
+    font-family:"Space Mono", monospace;
+    font-size:12px;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:var(--fovea);
+    display:flex; align-items:center; gap:10px;
+    margin:0 0 22px;
+  }
+  .eyebrow::before{
+    content:"";
+    width:9px; height:9px; border-radius:50%;
+    border:1.5px solid var(--fovea);
+    box-shadow:0 0 0 3px rgba(222,82,55,0.14);
+    flex:none;
+  }
+
+  section{ padding:64px 0; border-top:1px solid var(--hairline); }
+  h2{
+    font-family:"Space Grotesk", sans-serif;
+    font-weight:700; font-size:clamp(24px,4vw,32px);
+    letter-spacing:-0.015em; margin:0 0 26px;
+  }
+  p{ color:var(--ink-soft); }
+
+  /* ---------- nav ---------- */
+  nav{
+    position:sticky; top:0; z-index:20;
+    background:rgba(243,244,241,0.82);
+    backdrop-filter:saturate(140%) blur(10px);
+    -webkit-backdrop-filter:saturate(140%) blur(10px);
+    border-bottom:1px solid var(--hairline);
+  }
+  .nav-inner{
+    max-width:var(--maxw); margin:0 auto; padding:14px 28px;
+    display:flex; align-items:center; justify-content:space-between; gap:20px;
+  }
+  .nav-name{
+    font-family:"Space Grotesk", sans-serif; font-weight:700;
+    font-size:15px; letter-spacing:-0.01em; text-decoration:none;
+  }
+  .nav-name .dot{ color:var(--fovea); }
+  .nav-links{ display:flex; gap:22px; }
+  .nav-links a{
+    font-family:"Space Mono", monospace; font-size:12.5px;
+    letter-spacing:0.04em; color:var(--muted); text-decoration:none;
+    transition:color .18s ease;
+  }
+  .nav-links a:hover{ color:var(--ink); }
+  @media (max-width:620px){ .nav-links{ display:none; } }
+
+  /* ---------- hero ---------- */
+  .hero{ position:relative; overflow:hidden; border-top:none; }
+  #fovea{
+    position:absolute; inset:0; width:100%; height:100%;
+    pointer-events:none; z-index:0;
+  }
+  .hero-inner{
+    position:relative; z-index:1;
+    max-width:var(--maxw); margin:0 auto; padding:96px 28px 104px;
+  }
+  .role-tag{
+    font-family:"Space Mono", monospace; font-size:13px;
+    letter-spacing:0.05em; color:var(--muted); margin:0 0 18px;
+  }
+  .role-tag b{ color:var(--ink); font-weight:700; }
+  h1{
+    font-family:"Space Grotesk", sans-serif; font-weight:700;
+    font-size:clamp(44px,9vw,84px); line-height:0.98;
+    letter-spacing:-0.03em; margin:0 0 24px;
+  }
+  .thesis{
+    font-size:clamp(18px,2.4vw,21px); line-height:1.5;
+    max-width:30em; color:var(--ink-soft); margin:0 0 34px;
+  }
+  .thesis .hl{ color:var(--ink); font-weight:500; }
+
+  /* link row */
+  .links{ display:flex; flex-wrap:wrap; gap:10px; }
+  .chip{
+    display:inline-flex; align-items:center; gap:7px;
+    font-family:"Space Mono", monospace; font-size:13px;
+    text-decoration:none; color:var(--ink);
+    padding:8px 14px; border:1px solid var(--hairline);
+    border-radius:999px; background:rgba(255,255,255,0.4);
+    transition:border-color .18s ease, color .18s ease, background .18s ease;
+  }
+  .chip:hover{ border-color:var(--fovea); color:var(--fovea-deep); background:rgba(255,255,255,0.8); }
+  .chip svg{ width:15px; height:15px; flex:none; }
+
+  /* ---------- about ---------- */
+  .about p{ font-size:18px; margin:0 0 18px; max-width:62ch; }
+  .about p:last-child{ margin-bottom:0; }
+  .about a.inline{ color:var(--fovea-deep); text-decoration:none; border-bottom:1px solid rgba(181,60,35,0.3); }
+  .about a.inline:hover{ border-color:var(--fovea-deep); }
+
+  /* ---------- research themes ---------- */
+  .themes{ display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--hairline); border:1px solid var(--hairline); }
+  .theme{ background:var(--paper); padding:26px 24px; }
+  .theme .n{
+    font-family:"Space Mono", monospace; font-size:11px; color:var(--fovea);
+    letter-spacing:0.12em; text-transform:uppercase;
+  }
+  .theme h3{ font-family:"Space Grotesk",sans-serif; font-weight:500; font-size:18px; margin:8px 0 8px; letter-spacing:-0.01em; }
+  .theme p{ font-size:14.5px; line-height:1.55; margin:0; color:var(--muted); }
+  @media (max-width:600px){ .themes{ grid-template-columns:1fr; } }
+
+  /* ---------- publications ---------- */
+  .pub{
+    display:grid; grid-template-columns:120px 1fr; gap:28px;
+    padding:30px 0; border-top:1px solid var(--hairline);
+  }
+  .pub:first-of-type{ border-top:none; }
+  .pub-meta{ font-family:"Space Mono", monospace; font-size:12.5px; line-height:1.5; }
+  .pub-meta .year{ color:var(--ink); font-weight:700; display:block; }
+  .pub-venue{
+    display:inline-block; margin-top:8px; padding:3px 9px;
+    font-size:11px; letter-spacing:0.04em; border-radius:5px;
+    background:var(--paper-2); color:var(--ink-soft); border:1px solid var(--hairline);
+  }
+  .pub-venue.accent{ background:rgba(222,82,55,0.1); color:var(--fovea-deep); border-color:rgba(222,82,55,0.32); }
+  .pub-title{
+    font-family:"Space Grotesk", sans-serif; font-weight:500; font-size:19px;
+    line-height:1.3; letter-spacing:-0.012em; margin:0 0 8px; color:var(--ink);
+    text-decoration:none; display:inline-block;
+  }
+  .pub-title:hover{ color:var(--fovea-deep); }
+  .pub-authors{ font-size:14.5px; color:var(--muted); margin:0 0 10px; }
+  .pub-authors b{ color:var(--ink); font-weight:600; }
+  .pub-sum{ font-size:14.5px; color:var(--ink-soft); margin:0 0 14px; max-width:60ch; }
+  .pub-links{ display:flex; flex-wrap:wrap; gap:8px; }
+  .pub-links a{
+    font-family:"Space Mono", monospace; font-size:12px; text-decoration:none;
+    color:var(--muted); padding:4px 10px; border:1px solid var(--hairline); border-radius:6px;
+    transition:color .16s ease, border-color .16s ease;
+  }
+  .pub-links a:hover{ color:var(--fovea-deep); border-color:var(--fovea); }
+  @media (max-width:600px){ .pub{ grid-template-columns:1fr; gap:12px; } }
+
+  /* ---------- list rows (teaching / experience) ---------- */
+  .row{ display:grid; grid-template-columns:120px 1fr; gap:28px; padding:22px 0; border-top:1px solid var(--hairline); }
+  .row:first-of-type{ border-top:none; }
+  .row .when{ font-family:"Space Mono", monospace; font-size:12.5px; color:var(--muted); }
+  .row h3{ font-family:"Space Grotesk",sans-serif; font-weight:500; font-size:18px; margin:0 0 4px; letter-spacing:-0.01em; }
+  .row .where{ font-size:14.5px; color:var(--fovea-deep); margin:0 0 8px; font-weight:500; }
+  .row p{ font-size:14.5px; color:var(--muted); margin:0; max-width:58ch; }
+  @media (max-width:600px){ .row{ grid-template-columns:1fr; gap:8px; } }
+
+  /* ---------- contact ---------- */
+  .contact-grid{ display:flex; flex-wrap:wrap; gap:10px; margin-top:6px; }
+
+  /* ---------- footer ---------- */
+  footer{ border-top:1px solid var(--hairline); padding:40px 0 60px; }
+  footer .wrap{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:14px; align-items:center; }
+  footer p{ font-family:"Space Mono", monospace; font-size:12px; color:var(--muted); margin:0; }
+  footer a{ color:var(--muted); text-decoration:none; }
+  footer a:hover{ color:var(--fovea-deep); }
+
+  :focus-visible{ outline:2px solid var(--fovea); outline-offset:3px; border-radius:3px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#top" class="nav-name">Parsa Madinei<span class="dot">.</span></a>
+    <div class="nav-links">
+      <a href="#about">About</a>
+      <a href="#research">Research</a>
+      <a href="#publications">Publications</a>
+      <a href="#teaching">Teaching</a>
+      <a href="#contact">Contact</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<header class="hero" id="top">
+  <canvas id="fovea" aria-hidden="true"></canvas>
+  <div class="hero-inner">
+    <p class="role-tag">PhD Candidate &middot; <b>UC&nbsp;Santa&nbsp;Barbara</b> &middot; Vision &amp; Image Understanding Lab</p>
+    <h1>Parsa<br>Madinei</h1>
+    <p class="thesis">
+      I study how the structure of <span class="hl">human vision</span> — where we look, what we attend to, how acuity falls off from fovea to periphery — can make <span class="hl">vision-language models</span> more efficient, more grounded, and more aligned with how people actually see.
+    </p>
+    <div class="links">
+      <a class="chip" href="mailto:madinei@ucsb.edu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+        Email
+      </a>
+      <a class="chip" href="https://scholar.google.com/citations?user=YOUR_SCHOLAR_ID" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 1 9l11 6 9-4.9V17h2V9L12 3zM5 13.2v3.3c0 1.7 3.1 3.5 7 3.5s7-1.8 7-3.5v-3.3l-7 3.8-7-3.8z"/></svg>
+        Scholar
+      </a>
+      <a class="chip" href="https://github.com/YOUR_GITHUB" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5A10.5 10.5 0 0 0 8.7 22c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.4-3.4-1.4-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 0 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .8.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10.5 10.5 0 0 0 12 1.5z"/></svg>
+        GitHub
+      </a>
+      <a class="chip" href="https://www.linkedin.com/in/pmadinei/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5A2.5 2.5 0 1 0 5 8.5a2.5 2.5 0 0 0-.02-5zM3 9h4v12H3zM9 9h3.8v1.7h.1c.5-1 1.8-2 3.7-2 4 0 4.7 2.6 4.7 6V21h-4v-5.3c0-1.3 0-2.9-1.8-2.9s-2 1.4-2 2.8V21H9z"/></svg>
+        LinkedIn
+      </a>
+      <a class="chip" href="cv.pdf" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>
+        CV
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ===================== ABOUT ===================== -->
+<section id="about" class="about">
+  <div class="wrap">
+    <p class="eyebrow">About</p>
+    <p>I'm a PhD candidate in Psychological &amp; Brain Sciences and a graduate student in Computer Science at <strong>UC Santa Barbara</strong>, advised by <a class="inline" href="https://viu.psych.ucsb.edu/" target="_blank" rel="noopener">Miguel Eckstein</a> in the Vision &amp; Image Understanding Lab. My work sits at the intersection of computer vision, vision-language models, and human visual cognition.</p>
+    <p>I'm interested in a two-way exchange between minds and models: using what we know about <strong>eye movements, gaze, and foveated perception</strong> to build more efficient and better-grounded multimodal AI — and using those models, in turn, as instruments for understanding how people see. Recently that's meant work on layer pruning and low-rank compression for VLMs, training-free gaze-driven disambiguation for visual question answering, and reinforcement learning for foveated active visual search.</p>
+    <p>Before UCSB, I earned a B.S. in Biology and Computer Science from the University of Tehran. Outside the lab you'll usually find me on a tennis court or, in winter, snowboarding.</p>
+  </div>
+</section>
+
+<!-- ===================== RESEARCH ===================== -->
+<section id="research">
+  <div class="wrap">
+    <p class="eyebrow">Research</p>
+    <h2>What I work on</h2>
+    <div class="themes">
+      <div class="theme">
+        <span class="n">Efficiency</span>
+        <h3>Efficient vision-language models</h3>
+        <p>Making large multimodal models cheaper to run through interleaved layer pruning, low-rank compression, and visual-token reduction — without giving up accuracy.</p>
+      </div>
+      <div class="theme">
+        <span class="n">Gaze</span>
+        <h3>Gaze &amp; foveated perception for AI</h3>
+        <p>Using human eye-tracking and saccades as a supervisory signal: where people look tells a model where to compute and what a question is really about.</p>
+      </div>
+      <div class="theme">
+        <span class="n">Search</span>
+        <h3>Active visual search</h3>
+        <p>Reinforcement-learning agents with a frozen VLM backbone that move a foveated sensor to find targets, modeling search the way the visual system actually does it.</p>
+      </div>
+      <div class="theme">
+        <span class="n">Perception</span>
+        <h3>Human–AI perceptual comparison</h3>
+        <p>Comparing model attention and saliency against human gaze to understand where machine perception aligns with — and diverges from — human vision.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PUBLICATIONS ===================== -->
+<section id="publications">
+  <div class="wrap">
+    <p class="eyebrow">Publications</p>
+    <h2>Selected papers</h2>
+
+    <!-- INTERLACE -->
+    <article class="pub">
+      <div class="pub-meta">
+        <span class="year">2026</span>
+        <span class="pub-venue accent">CVPR 2026</span>
+      </div>
+      <div>
+        <a class="pub-title" href="https://arxiv.org/abs/2511.19676" target="_blank" rel="noopener">INTERLACE: Interleaved Layer Pruning and Efficient Adaptation in Large Vision-Language Models</a>
+        <p class="pub-authors"><b>Parsa Madinei</b>, Ryan Solgi, Ziqi Wen, Jonathan Skaza, Miguel P. Eckstein, Ramtin Pedarsani</p>
+        <p class="pub-sum">A finetune-freeze framework that analyzes triplets of consecutive layers to prune local redundancy. Retains ~89% of performance after dropping 25% of layers, using just 1% of FineVision for a single epoch.</p>
+        <div class="pub-links">
+          <a href="https://arxiv.org/abs/2511.19676" target="_blank" rel="noopener">arXiv:2511.19676</a>
+          <a href="https://arxiv.org/pdf/2511.19676" target="_blank" rel="noopener">PDF</a>
+          <a href="#" target="_blank" rel="noopener">Code</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- IRIS -->
+    <article class="pub">
+      <div class="pub-meta">
+        <span class="year">2026</span>
+        <span class="pub-venue">Preprint</span>
+      </div>
+      <div>
+        <a class="pub-title" href="https://arxiv.org/abs/2602.16138" target="_blank" rel="noopener">IRIS: Intent Resolution via Inference-time Saccades for Open-Ended VQA in Large Vision-Language Models</a>
+        <p class="pub-authors"><b>Parsa Madinei</b>, Srijita Karmakar, Russell A. Cohen Hoffing, Felix Gervitz, Miguel P. Eckstein</p>
+        <p class="pub-sum">A training-free method that conditions VLM representations on human gaze around speech onset to resolve ambiguous questions — more than doubling accuracy on ambiguous VQA (35% → 77%) with no change to model parameters. Introduces a new real-time gaze + speech + image VQA paradigm and dataset.</p>
+        <div class="pub-links">
+          <a href="https://arxiv.org/abs/2602.16138" target="_blank" rel="noopener">arXiv:2602.16138</a>
+          <a href="https://arxiv.org/pdf/2602.16138" target="_blank" rel="noopener">PDF</a>
+          <a href="#" target="_blank" rel="noopener">Code</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- PGSVD -->
+    <article class="pub">
+      <div class="pub-meta">
+        <span class="year">2025</span>
+        <span class="pub-venue">Preprint</span>
+      </div>
+      <div>
+        <a class="pub-title" href="https://arxiv.org/abs/2510.05544" target="_blank" rel="noopener">Activation-Informed Pareto-Guided Low-Rank Compression for Efficient LLM/VLM</a>
+        <p class="pub-authors">Ryan Solgi, <b>Parsa Madinei</b>, Jiayi Tian, Rupak Swaminathan, Jing Liu, Nathan Susanj, Zheng Zhang</p>
+        <p class="pub-sum">PGSVD — a zero-shot compression pipeline that bounds loss change via activation-based errors and casts low-rank compression as bi-objective optimization, yielding Pareto-optimal heterogeneous ranks with better accuracy and inference speedup.</p>
+        <div class="pub-links">
+          <a href="https://arxiv.org/abs/2510.05544" target="_blank" rel="noopener">arXiv:2510.05544</a>
+          <a href="https://arxiv.org/pdf/2510.05544" target="_blank" rel="noopener">PDF</a>
+        </div>
+      </div>
+    </article>
+
+    <p style="font-family:'Space Mono',monospace;font-size:12.5px;color:var(--muted);margin-top:26px;">
+      Full list on <a href="https://scholar.google.com/citations?user=YOUR_SCHOLAR_ID" target="_blank" rel="noopener" style="color:var(--fovea-deep);text-decoration:none;border-bottom:1px solid rgba(181,60,35,.3);">Google&nbsp;Scholar</a>.
+    </p>
+  </div>
+</section>
+
+<!-- ===================== TEACHING ===================== -->
+<section id="teaching">
+  <div class="wrap">
+    <p class="eyebrow">Teaching</p>
+    <h2>Teaching</h2>
+    <div class="row">
+      <div class="when">Spring 2026<br>UCSB</div>
+      <div>
+        <h3>PSY 163ME — AI &amp; Visual Cognition</h3>
+        <p class="where">Instructor</p>
+        <p>An upper-division course bridging modern AI and the science of human vision: Bayesian observers, deep networks, eye movements, attention, transformers, and word embeddings, with hands-on Jupyter notebook activities.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== EXPERIENCE ===================== -->
+<section id="experience">
+  <div class="wrap">
+    <p class="eyebrow">Experience &amp; Education</p>
+    <h2>Background</h2>
+
+    <div class="row">
+      <div class="when">2022 — Present</div>
+      <div>
+        <h3>Graduate Student Researcher</h3>
+        <p class="where">Vision &amp; Image Understanding Lab, UC Santa Barbara</p>
+        <p>Research on efficient vision-language models, gaze-guided multimodal understanding, and foveated active visual search, advised by Miguel Eckstein.</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="when">Internship</div>
+      <div>
+        <h3>Student Researcher</h3>
+        <p class="where">Google</p>
+        <p>Applied machine learning and computer vision research.</p>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="when">Education</div>
+      <div>
+        <h3>PhD, Psychological &amp; Brain Sciences &middot; MS, Computer Science</h3>
+        <p class="where">UC Santa Barbara</p>
+        <p>B.S. in Biology and Computer Science, University of Tehran.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CONTACT ===================== -->
+<section id="contact">
+  <div class="wrap">
+    <p class="eyebrow">Contact</p>
+    <h2>Get in touch</h2>
+    <p style="max-width:54ch;">I'm always glad to talk about efficient multimodal models, gaze and visual cognition, or potential collaborations. The fastest way to reach me is email.</p>
+    <div class="contact-grid">
+      <a class="chip" href="mailto:madinei@ucsb.edu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+        madinei@ucsb.edu
+      </a>
+      <a class="chip" href="https://scholar.google.com/citations?user=YOUR_SCHOLAR_ID" target="_blank" rel="noopener">Google Scholar</a>
+      <a class="chip" href="https://github.com/YOUR_GITHUB" target="_blank" rel="noopener">GitHub</a>
+      <a class="chip" href="https://www.linkedin.com/in/pmadinei/" target="_blank" rel="noopener">LinkedIn</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>&copy; <span id="yr"></span> Parsa Madinei</p>
+    <p>Santa Barbara, California &middot; <a href="mailto:madinei@ucsb.edu">madinei@ucsb.edu</a></p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+
+  /* ===== Foveation signature =====
+     A grid of sampling points. Dots near the "gaze point" are large, sharp and
+     warm; they fall off to small, faint, cool dots in the periphery — the
+     fovea→periphery acuity gradient. The gaze point follows the cursor over the
+     hero and drifts in small saccade-like jumps when idle. Static if the visitor
+     prefers reduced motion. */
+  (function(){
+    const canvas = document.getElementById('fovea');
+    if(!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const hero = canvas.parentElement;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const SP = 27;          // grid spacing
+    const R  = 250;         // foveal radius
+    const warm = [222, 82, 55];
+    const cool = [122, 134, 140];
+
+    let W = 0, H = 0, dpr = 1, dots = [];
+    let fx = 0, fy = 0, tx = 0, ty = 0;     // gaze point + target
+    let pointerActive = false, idleTimer = 0, saccadeTimer = 0;
+
+    function resize(){
+      const rect = hero.getBoundingClientRect();
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      W = rect.width; H = rect.height;
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      dots = [];
+      for(let y = SP/2; y < H; y += SP)
+        for(let x = SP/2; x < W; x += SP)
+          dots.push([x, y]);
+      if(fx === 0){ fx = tx = W * 0.66; fy = ty = H * 0.46; }
+      draw();
+    }
+
+    function draw(){
+      ctx.clearRect(0, 0, W, H);
+      for(let i = 0; i < dots.length; i++){
+        const dx = dots[i][0] - fx, dy = dots[i][1] - fy;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        let t = 1 - d / R; if(t < 0) t = 0;
+        const acuity = t * t;                         // sharp falloff
+        const rad = 0.7 + acuity * 2.9;
+        const op  = 0.06 + acuity * 0.5;
+        const r = Math.round(cool[0] + (warm[0]-cool[0]) * acuity);
+        const g = Math.round(cool[1] + (warm[1]-cool[1]) * acuity);
+        const b = Math.round(cool[2] + (warm[2]-cool[2]) * acuity);
+        ctx.beginPath();
+        ctx.arc(dots[i][0], dots[i][1], rad, 0, 6.2832);
+        ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + op + ')';
+        ctx.fill();
+      }
+      // fixation ring at the gaze point
+      ctx.beginPath();
+      ctx.arc(fx, fy, 13, 0, 6.2832);
+      ctx.strokeStyle = 'rgba(222,82,55,0.35)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    function tick(now){
+      // idle -> auto saccades
+      if(!pointerActive){
+        saccadeTimer -= 16;
+        if(saccadeTimer <= 0){
+          saccadeTimer = 1400 + Math.random() * 1400;
+          tx = W * (0.25 + Math.random() * 0.6);
+          ty = H * (0.22 + Math.random() * 0.6);
+        }
+      }
+      fx += (tx - fx) * 0.085;
+      fy += (ty - fy) * 0.085;
+      draw();
+      requestAnimationFrame(tick);
+    }
+
+    hero.addEventListener('pointermove', function(e){
+      const rect = hero.getBoundingClientRect();
+      tx = e.clientX - rect.left;
+      ty = e.clientY - rect.top;
+      pointerActive = true;
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(function(){ pointerActive = false; saccadeTimer = 600; }, 2200);
+    });
+
+    window.addEventListener('resize', resize);
+    resize();
+    if(!reduce) requestAnimationFrame(tick);
+  })();
+</script>
+</body>
+</html>
