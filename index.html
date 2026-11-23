@@ -3,385 +3,699 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Parsa Madinei</title>
-<meta name="description" content="Parsa Madinei — PhD candidate at UC Santa Barbara.">
+<title>Parsa Madinei — Gaze, foveated perception &amp; vision-language models</title>
+<meta name="description" content="Parsa Madinei — PhD candidate at UC Santa Barbara working on efficient vision-language models, human gaze, and foveated perception.">
+<meta name="theme-color" content="#090B0F">
 
 <!-- ===== Social / SEO ===== -->
 <meta property="og:title" content="Parsa Madinei">
 <meta property="og:description" content="PhD candidate at UC Santa Barbara. Efficient vision-language models, human gaze, and foveated perception.">
 <meta property="og:type" content="website">
+<meta property="og:url" content="https://pmadinei.github.io/">
+<meta property="og:image" content="https://pmadinei.github.io/assets/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23090B0F'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%23FF6B4A' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='3.2' fill='%23FF6B4A'/%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
   :root{
-    --paper:    #F3F4F1;   /* cool neutral "lab paper" ground */
-    --paper-2:  #EAECE7;   /* slightly deeper surface */
-    --ink:      #17191C;   /* near-black, cool undertone */
-    --ink-soft: #383C42;
-    --muted:    #6A7077;   /* secondary text / periphery */
-    --hairline: #D9DBD5;
-    --fovea:    #DE5237;   /* warm coral — the single fixation accent */
-    --fovea-deep:#B53C23;
-    --maxw: 820px;
+    --bg:        #090B0F;
+    --bg-2:      #0E1117;
+    --panel:     #11151C;
+    --panel-2:   #161B24;
+    --line:      rgba(255,255,255,0.08);
+    --line-2:    rgba(255,255,255,0.14);
+    --text:      #ECEEF1;
+    --soft:      #B7BEC8;
+    --muted:     #7A8491;
+    --fovea:     #FF6B4A;   /* human gaze: warm */
+    --fovea-soft:rgba(255,107,74,0.14);
+    --model:     #63DDE6;   /* model attention: cool */
+    --model-soft:rgba(99,221,230,0.12);
+    --maxw: 1080px;
+    --serif: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+    --sans:  "Geist", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono:  "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
   }
 
   *{ box-sizing:border-box; }
-  html{ scroll-behavior:smooth; }
+  html{ scroll-behavior:smooth; scroll-padding-top:76px; }
   @media (prefers-reduced-motion: reduce){ html{ scroll-behavior:auto; } }
 
   body{
     margin:0;
-    background:var(--paper);
-    color:var(--ink);
-    font-family:"Inter", system-ui, -apple-system, sans-serif;
-    font-size:17px;
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--sans);
+    font-size:16.5px;
     line-height:1.65;
     -webkit-font-smoothing:antialiased;
     text-rendering:optimizeLegibility;
+    overflow-x:hidden;
   }
-
   a{ color:inherit; }
+  ::selection{ background:var(--fovea); color:#12090A; }
 
-  /* ---------- shared layout ---------- */
+  /* ---------- ambient layers ---------- */
+  #field{ position:fixed; inset:0; width:100%; height:100%; z-index:0; pointer-events:none; }
+  .glow{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(60% 50% at 82% 0%, rgba(255,107,74,0.10), transparent 70%),
+      radial-gradient(50% 45% at 0% 100%, rgba(99,221,230,0.07), transparent 70%);
+  }
+  main, nav, footer{ position:relative; z-index:1; }
+
   .wrap{ max-width:var(--maxw); margin:0 auto; padding:0 28px; }
-
-  .eyebrow{
-    font-family:"Space Mono", monospace;
-    font-size:12px;
-    letter-spacing:0.18em;
-    text-transform:uppercase;
-    color:var(--fovea);
-    display:flex; align-items:center; gap:10px;
-    margin:0 0 22px;
-  }
-  .eyebrow::before{
-    content:"";
-    width:9px; height:9px; border-radius:50%;
-    border:1.5px solid var(--fovea);
-    box-shadow:0 0 0 3px rgba(222,82,55,0.14);
-    flex:none;
-  }
-
-  section{ padding:64px 0; border-top:1px solid var(--hairline); }
-  h2{
-    font-family:"Space Grotesk", sans-serif;
-    font-weight:700; font-size:clamp(24px,4vw,32px);
-    letter-spacing:-0.015em; margin:0 0 26px;
-  }
-  p{ color:var(--ink-soft); }
 
   /* ---------- nav ---------- */
   nav{
-    position:sticky; top:0; z-index:20;
-    background:rgba(243,244,241,0.82);
-    backdrop-filter:saturate(140%) blur(10px);
-    -webkit-backdrop-filter:saturate(140%) blur(10px);
-    border-bottom:1px solid var(--hairline);
+    position:sticky; top:0; z-index:30;
+    background:rgba(9,11,15,0.72);
+    backdrop-filter:saturate(150%) blur(14px);
+    -webkit-backdrop-filter:saturate(150%) blur(14px);
+    border-bottom:1px solid var(--line);
   }
   .nav-inner{
     max-width:var(--maxw); margin:0 auto; padding:14px 28px;
     display:flex; align-items:center; justify-content:space-between; gap:20px;
   }
   .nav-name{
-    font-family:"Space Grotesk", sans-serif; font-weight:700;
-    font-size:15px; letter-spacing:-0.01em; text-decoration:none;
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:var(--serif); font-size:21px; letter-spacing:0.005em;
+    text-decoration:none; white-space:nowrap;
   }
-  .nav-name .dot{ color:var(--fovea); }
-  .nav-links{ display:flex; gap:22px; }
+  .nav-name i{
+    width:11px; height:11px; border-radius:50%; flex:none;
+    border:1.5px solid var(--fovea);
+    box-shadow:0 0 0 4px var(--fovea-soft), inset 0 0 0 2px var(--bg), inset 0 0 0 6px var(--fovea);
+  }
+  .nav-links{ display:flex; gap:24px; overflow-x:auto; scrollbar-width:none; }
+  .nav-links::-webkit-scrollbar{ display:none; }
   .nav-links a{
-    font-family:"Space Mono", monospace; font-size:12.5px;
-    letter-spacing:0.04em; color:var(--muted); text-decoration:none;
+    font-family:var(--mono); font-size:12.5px; letter-spacing:0.03em;
+    color:var(--muted); text-decoration:none; white-space:nowrap;
     transition:color .18s ease;
   }
-  .nav-links a:hover{ color:var(--ink); }
-  @media (max-width:620px){ .nav-links{ display:none; } }
+  .nav-links a:hover, .nav-links a.on{ color:var(--text); }
+  @media (max-width:560px){
+    .nav-inner{ padding:12px 20px; }
+    .nav-links{ gap:16px; }
+    .nav-links a{ font-size:12px; }
+  }
+
+  /* ---------- scanpath rail ---------- */
+  .rail{
+    position:fixed; left:26px; top:50%; transform:translateY(-50%);
+    z-index:25; width:34px; display:none;
+  }
+  @media (min-width:1280px){ .rail{ display:block; } }
+  .rail svg{ position:absolute; inset:0; width:34px; height:100%; overflow:visible; }
+  .rail polyline{ fill:none; stroke:var(--line-2); stroke-width:1; stroke-dasharray:3 4; }
+  .rail a{
+    position:absolute; width:22px; height:22px; margin:-11px 0 0 -11px;
+    display:grid; place-items:center; text-decoration:none;
+  }
+  .rail a::before{
+    content:""; width:8px; height:8px; border-radius:50%;
+    background:var(--bg); border:1.5px solid var(--muted);
+    transition:all .25s ease;
+  }
+  .rail a span{
+    position:absolute; left:26px; white-space:nowrap;
+    font-family:var(--mono); font-size:11px; letter-spacing:0.06em; text-transform:uppercase;
+    color:var(--muted); opacity:0; transform:translateX(-4px);
+    transition:opacity .2s ease, transform .2s ease; pointer-events:none;
+  }
+  .rail a:hover span, .rail a.on span{ opacity:1; transform:none; }
+  .rail a.on span{ color:var(--fovea); }
+  .rail a.on::before{
+    width:12px; height:12px; border-color:var(--fovea); background:var(--fovea);
+    box-shadow:0 0 0 5px var(--fovea-soft);
+  }
+
+  /* ---------- type ---------- */
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.16em; text-transform:uppercase;
+    color:var(--muted); display:flex; align-items:center; gap:12px; margin:0 0 18px;
+  }
+  .eyebrow b{ color:var(--fovea); font-weight:500; }
+  .eyebrow::after{ content:""; flex:1; height:1px; background:var(--line); }
+  h2{
+    font-family:var(--serif); font-weight:400;
+    font-size:clamp(34px,5vw,50px); line-height:1.05; letter-spacing:-0.01em;
+    margin:0 0 30px;
+  }
+  h2 em{ font-style:italic; color:var(--fovea); }
+  p{ color:var(--soft); margin:0 0 16px; }
+  section{ padding:84px 0; }
+  @media (max-width:640px){ section{ padding:60px 0; } }
 
   /* ---------- hero ---------- */
-  .hero{ position:relative; overflow:hidden; border-top:none; }
-  #fovea{
-    position:absolute; inset:0; width:100%; height:100%;
-    pointer-events:none; z-index:0;
-  }
-  .hero-inner{
-    position:relative; z-index:1;
-    max-width:var(--maxw); margin:0 auto; padding:96px 28px 104px;
+  .hero{ padding:72px 0 64px; }
+  .hero-grid{
+    display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,0.85fr);
+    gap:56px; align-items:center;
   }
   .role-tag{
-    font-family:"Space Mono", monospace; font-size:13px;
-    letter-spacing:0.05em; color:var(--muted); margin:0 0 18px;
+    font-family:var(--mono); font-size:12.5px; letter-spacing:0.04em;
+    color:var(--muted); margin:0 0 22px;
   }
-  .role-tag b{ color:var(--ink); font-weight:700; }
+  .role-tag .live{
+    display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--model);
+    box-shadow:0 0 0 4px var(--model-soft); margin:0 12px 1px 4px;
+  }
+  .role-tag b{ color:var(--text); font-weight:500; }
   h1{
-    font-family:"Space Grotesk", sans-serif; font-weight:700;
-    font-size:clamp(44px,9vw,84px); line-height:0.98;
-    letter-spacing:-0.03em; margin:0 0 24px;
+    font-family:var(--serif); font-weight:400;
+    font-size:clamp(60px,9.6vw,118px); line-height:0.9; letter-spacing:-0.022em;
+    margin:0 0 28px;
   }
+  h1 em{ font-style:italic; color:var(--fovea); }
   .thesis{
-    font-size:clamp(18px,2.4vw,21px); line-height:1.5;
-    max-width:30em; color:var(--ink-soft); margin:0 0 34px;
+    font-size:clamp(18px,2.1vw,21px); line-height:1.5; color:var(--soft);
+    max-width:31em; margin:0 0 32px;
   }
-  .thesis .hl{ color:var(--ink); font-weight:500; }
+  .thesis .h{ color:var(--text); box-shadow:inset 0 -0.42em 0 var(--fovea-soft); }
+  .thesis .m{ color:var(--text); box-shadow:inset 0 -0.42em 0 var(--model-soft); }
 
-  /* link row */
   .links{ display:flex; flex-wrap:wrap; gap:10px; }
   .chip{
-    display:inline-flex; align-items:center; gap:7px;
-    font-family:"Space Mono", monospace; font-size:13px;
-    text-decoration:none; color:var(--ink);
-    padding:8px 14px; border:1px solid var(--hairline);
-    border-radius:999px; background:rgba(255,255,255,0.4);
-    transition:border-color .18s ease, color .18s ease, background .18s ease;
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:var(--mono); font-size:13px;
+    text-decoration:none; color:var(--text);
+    padding:9px 15px; border:1px solid var(--line-2);
+    border-radius:999px; background:rgba(255,255,255,0.03);
+    transition:border-color .18s ease, color .18s ease, background .18s ease, transform .18s ease;
   }
-  .chip:hover{ border-color:var(--fovea); color:var(--fovea-deep); background:rgba(255,255,255,0.8); }
+  .chip:hover{ border-color:var(--fovea); color:var(--fovea); background:var(--fovea-soft); transform:translateY(-1px); }
   .chip svg{ width:15px; height:15px; flex:none; }
+  .chip.primary{ background:var(--fovea); border-color:var(--fovea); color:#160A07; font-weight:500; }
+  .chip.primary:hover{ background:#FF8468; border-color:#FF8468; color:#160A07; }
+
+  /* gaze-contingent portrait */
+  .viewer{ justify-self:end; width:100%; max-width:410px; }
+  .viewer-frame{
+    position:relative; aspect-ratio:1/1; border-radius:18px; overflow:hidden;
+    background:var(--panel);
+    box-shadow:0 0 0 1px var(--line-2), 0 30px 80px -30px rgba(0,0,0,0.9), 0 0 90px -40px rgba(255,107,74,0.5);
+    cursor:crosshair; touch-action:pan-y;
+  }
+  .viewer-frame img, .viewer-frame canvas{
+    position:absolute; inset:0; width:100%; height:100%; display:block; object-fit:cover;
+  }
+  .viewer-frame canvas{ opacity:0; transition:opacity .5s ease; }
+  .viewer-frame.ready canvas{ opacity:1; }
+  .corner{ position:absolute; width:18px; height:18px; border:1.5px solid rgba(255,255,255,0.75); pointer-events:none; }
+  .corner.tl{ top:12px; left:12px; border-right:0; border-bottom:0; border-top-left-radius:5px; }
+  .corner.tr{ top:12px; right:12px; border-left:0; border-bottom:0; border-top-right-radius:5px; }
+  .corner.bl{ bottom:12px; left:12px; border-right:0; border-top:0; border-bottom-left-radius:5px; }
+  .corner.br{ bottom:12px; right:12px; border-left:0; border-top:0; border-bottom-right-radius:5px; }
+  .viewer-tag{
+    position:absolute; left:50%; top:13px; transform:translateX(-50%);
+    font-family:var(--mono); font-size:10.5px; letter-spacing:0.1em; text-transform:uppercase;
+    color:#fff; background:rgba(9,11,15,0.55); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    padding:4px 10px; border-radius:999px; white-space:nowrap; pointer-events:none;
+  }
+  .readout{
+    display:grid; grid-template-columns:repeat(3,auto); justify-content:space-between; gap:10px;
+    margin-top:14px; font-family:var(--mono); font-size:11.5px; color:var(--muted);
+    font-variant-numeric:tabular-nums;
+  }
+  .readout span b{ display:block; color:var(--text); font-weight:500; font-size:13px; margin-top:2px; }
+  .readout span:nth-child(1) b{ color:var(--fovea); }
+  .readout span:nth-child(3) b{ color:var(--model); }
+  .viewer-hint{ font-family:var(--mono); font-size:11px; color:var(--muted); margin:10px 0 0; opacity:0.8; }
+
+  @media (max-width:900px){
+    .hero{ padding:40px 0 48px; }
+    .hero-grid{ grid-template-columns:1fr; gap:36px; }
+    .viewer{ justify-self:start; max-width:320px; order:-1; }
+  }
 
   /* ---------- about ---------- */
-  .about p{ font-size:18px; margin:0 0 18px; max-width:62ch; }
-  .about p:last-child{ margin-bottom:0; }
-  .about a.inline{ color:var(--fovea-deep); text-decoration:none; border-bottom:1px solid rgba(181,60,35,0.3); }
-  .about a.inline:hover{ border-color:var(--fovea-deep); }
+  .about-grid{ display:grid; grid-template-columns:minmax(0,1.5fr) minmax(0,1fr); gap:56px; align-items:start; }
+  .about p{ font-size:17.5px; }
+  .about strong{ color:var(--text); font-weight:500; }
+  a.inline{ color:var(--text); text-decoration:none; border-bottom:1px solid var(--fovea); transition:color .16s ease; }
+  a.inline:hover{ color:var(--fovea); }
+  .facts{ border:1px solid var(--line); border-radius:16px; background:rgba(17,21,28,0.7); overflow:hidden; }
+  .facts div{ display:grid; grid-template-columns:86px 1fr; gap:14px; padding:14px 18px; border-top:1px solid var(--line); font-size:14.5px; }
+  .facts div:first-child{ border-top:0; }
+  .facts dt, .facts .k{ font-family:var(--mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); padding-top:3px; }
+  .facts .v{ color:var(--soft); }
+  .facts .v b{ color:var(--text); font-weight:500; }
+  @media (max-width:820px){ .about-grid{ grid-template-columns:1fr; gap:30px; } }
+
+  /* ---------- news ---------- */
+  .news{ list-style:none; margin:0; padding:0; border-top:1px solid var(--line); }
+  .news li{
+    display:grid; grid-template-columns:170px 1fr; gap:22px; align-items:baseline;
+    padding:16px 0; border-bottom:1px solid var(--line); color:var(--soft); font-size:15.5px;
+  }
+  .news li b{ color:var(--text); font-weight:500; }
+  .news .tag{ font-family:var(--mono); font-size:11.5px; letter-spacing:0.06em; text-transform:uppercase; color:var(--fovea); }
+  .news .tag.m{ color:var(--model); }
+  @media (max-width:640px){ .news li{ grid-template-columns:1fr; gap:4px; } }
 
   /* ---------- research themes ---------- */
-  .themes{ display:grid; grid-template-columns:repeat(2,1fr); gap:1px; background:var(--hairline); border:1px solid var(--hairline); }
-  .theme{ background:var(--paper); padding:26px 24px; }
-  .theme .n{
-    font-family:"Space Mono", monospace; font-size:11px; color:var(--fovea);
-    letter-spacing:0.12em; text-transform:uppercase;
+  .themes{ display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
+  .theme{
+    position:relative; padding:26px 26px 24px; border-radius:16px;
+    border:1px solid var(--line); background:linear-gradient(180deg, rgba(22,27,36,0.85), rgba(14,17,23,0.85));
+    overflow:hidden; transition:border-color .25s ease, transform .25s ease;
   }
-  .theme h3{ font-family:"Space Grotesk",sans-serif; font-weight:500; font-size:18px; margin:8px 0 8px; letter-spacing:-0.01em; }
-  .theme p{ font-size:14.5px; line-height:1.55; margin:0; color:var(--muted); }
-  @media (max-width:600px){ .themes{ grid-template-columns:1fr; } }
+  .theme::before{
+    content:""; position:absolute; width:260px; height:260px; border-radius:50%;
+    right:-110px; top:-130px; background:radial-gradient(circle, var(--c-soft), transparent 68%);
+    opacity:0.9; transition:transform .5s ease;
+  }
+  .theme:hover{ border-color:var(--c); transform:translateY(-2px); }
+  .theme:hover::before{ transform:scale(1.25); }
+  .theme.h{ --c:var(--fovea); --c-soft:var(--fovea-soft); }
+  .theme.m{ --c:var(--model); --c-soft:var(--model-soft); }
+  .theme .n{ position:relative; font-family:var(--mono); font-size:11px; color:var(--c); letter-spacing:0.14em; text-transform:uppercase; }
+  .theme h3{ position:relative; font-family:var(--serif); font-weight:400; font-size:26px; line-height:1.15; margin:10px 0 10px; }
+  .theme p{ position:relative; font-size:14.5px; line-height:1.6; margin:0; color:var(--soft); }
+  @media (max-width:700px){ .themes{ grid-template-columns:1fr; } }
 
   /* ---------- publications ---------- */
+  .filters{ display:flex; flex-wrap:wrap; gap:8px; margin:-6px 0 26px; }
+  .filters button{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.03em; color:var(--muted);
+    background:transparent; border:1px solid var(--line-2); border-radius:999px;
+    padding:7px 14px; cursor:pointer; transition:all .18s ease;
+  }
+  .filters button:hover{ color:var(--text); }
+  .filters button[aria-pressed="true"]{ color:#160A07; background:var(--text); border-color:var(--text); }
+  .filters button sup{ font-size:10px; margin-left:4px; opacity:0.65; }
+
+  .year-mark{
+    font-family:var(--serif); font-style:italic; font-size:30px; color:var(--muted);
+    margin:34px 0 12px; display:flex; align-items:center; gap:16px;
+  }
+  .year-mark:first-of-type{ margin-top:0; }
+  .year-mark::after{ content:""; flex:1; height:1px; background:var(--line); }
+
   .pub{
-    display:grid; grid-template-columns:120px 1fr; gap:28px;
-    padding:30px 0; border-top:1px solid var(--hairline);
+    display:grid; grid-template-columns:92px 1fr; gap:24px;
+    padding:24px; margin:0 0 12px; border-radius:16px;
+    border:1px solid var(--line); background:rgba(17,21,28,0.78);
+    transition:border-color .25s ease, background .25s ease, transform .25s ease;
   }
-  .pub:first-of-type{ border-top:none; }
-  .pub-meta{ font-family:"Space Mono", monospace; font-size:12.5px; line-height:1.5; }
-  .pub-meta .year{ color:var(--ink); font-weight:700; display:block; }
-  .pub-venue{
-    display:inline-block; margin-top:8px; padding:3px 9px;
-    font-size:11px; letter-spacing:0.04em; border-radius:5px;
-    background:var(--paper-2); color:var(--ink-soft); border:1px solid var(--hairline);
+  .pub:hover{ border-color:var(--line-2); background:rgba(22,27,36,0.92); transform:translateY(-1px); }
+  .pub[hidden]{ display:none; }
+  .glyph{
+    width:92px; height:92px; border-radius:14px; flex:none;
+    background:var(--bg-2); border:1px solid var(--line);
+    display:grid; place-items:center; color:var(--muted);
   }
-  .pub-venue.accent{ background:rgba(222,82,55,0.1); color:var(--fovea-deep); border-color:rgba(222,82,55,0.32); }
-  .pub-title{
-    font-family:"Space Grotesk", sans-serif; font-weight:500; font-size:19px;
-    line-height:1.3; letter-spacing:-0.012em; margin:0 0 8px; color:var(--ink);
-    text-decoration:none; display:inline-block;
+  .glyph svg{ width:60px; height:60px; fill:none; stroke:currentColor; stroke-width:1.5; stroke-linecap:round; stroke-linejoin:round; }
+  .glyph .h{ stroke:var(--fovea); } .glyph .m{ stroke:var(--model); }
+  .glyph .hf{ fill:var(--fovea); stroke:none; } .glyph .mf{ fill:var(--model); stroke:none; }
+  .glyph .d{ stroke-dasharray:2.5 3.5; }
+  .pub-top{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:0 0 9px; }
+  .venue{
+    font-family:var(--mono); font-size:11px; letter-spacing:0.06em; text-transform:uppercase;
+    padding:3px 9px; border-radius:6px; color:var(--soft);
+    border:1px solid var(--line-2); background:rgba(255,255,255,0.03);
   }
-  .pub-title:hover{ color:var(--fovea-deep); }
-  .pub-authors{ font-size:14.5px; color:var(--muted); margin:0 0 10px; }
-  .pub-authors b{ color:var(--ink); font-weight:600; }
-  .pub-sum{ font-size:14.5px; color:var(--ink-soft); margin:0 0 14px; max-width:60ch; }
+  .venue.accent{ color:var(--fovea); border-color:rgba(255,107,74,0.45); background:var(--fovea-soft); }
+  .kind{ font-family:var(--mono); font-size:11px; color:var(--muted); letter-spacing:0.04em; }
+  .pub h3{ margin:0 0 7px; font-family:var(--sans); font-weight:500; font-size:18.5px; line-height:1.35; letter-spacing:-0.01em; }
+  .pub h3 a{ text-decoration:none; background:linear-gradient(var(--fovea),var(--fovea)) 0 100%/0 1px no-repeat; transition:background-size .3s ease, color .2s ease; }
+  .pub h3 a:hover{ color:var(--fovea); background-size:100% 1px; }
+  .pub-authors{ font-size:14.5px; color:var(--muted); margin:0 0 9px; }
+  .pub-authors b{ color:var(--text); font-weight:500; }
+  .pub-sum{ font-size:14.5px; line-height:1.6; color:var(--soft); margin:0 0 14px; max-width:68ch; }
   .pub-links{ display:flex; flex-wrap:wrap; gap:8px; }
   .pub-links a{
-    font-family:"Space Mono", monospace; font-size:12px; text-decoration:none;
-    color:var(--muted); padding:4px 10px; border:1px solid var(--hairline); border-radius:6px;
-    transition:color .16s ease, border-color .16s ease;
+    font-family:var(--mono); font-size:12px; text-decoration:none; color:var(--soft);
+    padding:4px 11px; border:1px solid var(--line-2); border-radius:7px;
+    transition:color .16s ease, border-color .16s ease, background .16s ease;
   }
-  .pub-links a:hover{ color:var(--fovea-deep); border-color:var(--fovea); }
-  @media (max-width:600px){ .pub{ grid-template-columns:1fr; gap:12px; } }
+  .pub-links a:hover{ color:var(--fovea); border-color:var(--fovea); background:var(--fovea-soft); }
+  .pub-links a::after{ content:" ↗"; opacity:0.5; }
+  .scholar-note{ font-family:var(--mono); font-size:12.5px; color:var(--muted); margin:26px 0 0; }
+  @media (max-width:640px){
+    .pub{ grid-template-columns:1fr; gap:14px; padding:20px; }
+    .glyph{ width:64px; height:64px; border-radius:12px; }
+    .glyph svg{ width:42px; height:42px; }
+  }
 
-  /* ---------- list rows (teaching / experience) ---------- */
-  .row{ display:grid; grid-template-columns:120px 1fr; gap:28px; padding:22px 0; border-top:1px solid var(--hairline); }
-  .row:first-of-type{ border-top:none; }
-  .row .when{ font-family:"Space Mono", monospace; font-size:12.5px; color:var(--muted); }
-  .row h3{ font-family:"Space Grotesk",sans-serif; font-weight:500; font-size:18px; margin:0 0 4px; letter-spacing:-0.01em; }
-  .row .where{ font-size:14.5px; color:var(--fovea-deep); margin:0 0 8px; font-weight:500; }
-  .row p{ font-size:14.5px; color:var(--muted); margin:0; max-width:58ch; }
+  /* ---------- list rows (teaching / experience, currently hidden) ---------- */
+  .row{ display:grid; grid-template-columns:140px 1fr; gap:28px; padding:22px 0; border-top:1px solid var(--line); }
+  .row .when{ font-family:var(--mono); font-size:12.5px; color:var(--muted); }
+  .row h3{ font-family:var(--serif); font-weight:400; font-size:24px; margin:0 0 4px; }
+  .row .where{ font-size:14.5px; color:var(--fovea); margin:0 0 8px; }
+  .row p{ font-size:14.5px; margin:0; max-width:58ch; }
   @media (max-width:600px){ .row{ grid-template-columns:1fr; gap:8px; } }
 
   /* ---------- contact ---------- */
-  .contact-grid{ display:flex; flex-wrap:wrap; gap:10px; margin-top:6px; }
+  .contact-card{
+    position:relative; overflow:hidden; border-radius:22px; padding:52px 44px;
+    border:1px solid var(--line-2);
+    background:
+      radial-gradient(70% 120% at 100% 0%, rgba(255,107,74,0.16), transparent 60%),
+      radial-gradient(60% 120% at 0% 100%, rgba(99,221,230,0.10), transparent 60%),
+      var(--panel);
+  }
+  .contact-card h2{ margin-bottom:14px; }
+  .contact-card p:not(.eyebrow){ max-width:50ch; font-size:17px; margin-bottom:26px; }
+  @media (max-width:640px){ .contact-card{ padding:36px 24px; } }
 
   /* ---------- footer ---------- */
-  footer{ border-top:1px solid var(--hairline); padding:40px 0 60px; }
-  footer .wrap{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:14px; align-items:center; }
-  footer p{ font-family:"Space Mono", monospace; font-size:12px; color:var(--muted); margin:0; }
+  footer{ padding:34px 0 56px; }
+  footer .wrap{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:12px; align-items:center; }
+  footer p{ font-family:var(--mono); font-size:12px; color:var(--muted); margin:0; }
   footer a{ color:var(--muted); text-decoration:none; }
-  footer a:hover{ color:var(--fovea-deep); }
+  footer a:hover{ color:var(--fovea); }
 
-  :focus-visible{ outline:2px solid var(--fovea); outline-offset:3px; border-radius:3px; }
+  /* ---------- motion ---------- */
+  .js .reveal{ opacity:0; transform:translateY(18px); transition:opacity .7s ease, transform .7s cubic-bezier(.2,.7,.2,1); }
+  .js .reveal.in{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){
+    .js .reveal{ opacity:1; transform:none; transition:none; }
+    *{ transition-duration:0.01ms !important; }
+  }
+  :focus-visible{ outline:2px solid var(--fovea); outline-offset:3px; border-radius:4px; }
 </style>
 </head>
 <body>
+<script>document.documentElement.classList.add('js');</script>
+
+<canvas id="field" aria-hidden="true"></canvas>
+<div class="glow" aria-hidden="true"></div>
 
 <nav>
   <div class="nav-inner">
-    <a href="#top" class="nav-name">Parsa Madinei<span class="dot">.</span></a>
+    <a href="#top" class="nav-name"><i></i>Parsa Madinei</a>
     <div class="nav-links">
       <a href="#about">About</a>
+      <a href="#news">News</a>
       <a href="#research">Research</a>
       <a href="#publications">Publications</a>
-      <a href="#teaching">Teaching</a>
       <a href="#contact">Contact</a>
     </div>
   </div>
 </nav>
 
+<!-- scanpath section rail (wide screens) -->
+<div class="rail" id="rail" aria-hidden="true"></div>
+
+<main>
+
 <!-- ===================== HERO ===================== -->
-<header class="hero" id="top">
-  <canvas id="fovea" aria-hidden="true"></canvas>
-  <div class="hero-inner">
-    <p class="role-tag">PhD Candidate &middot; UC&nbsp;Santa&nbsp;Barbara &middot; Vision &amp; Image Understanding Lab</p>
-    <h1>Parsa<br>Madinei</h1>
-    <p class="thesis">
-      I make <span class="hl">vision-language models</span> more efficient through compression, and more aligned with <span class="hl">human perception</span> through incorporation of gaze and RL-based search.
-    </p>
-    <div class="links">
-      <a class="chip" href="mailto:madinei@ucsb.edu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-        Email
-      </a>
-      <a class="chip" href="https://scholar.google.com/citations?user=xflZUGAAAAAJ" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 1 9l11 6 9-4.9V17h2V9L12 3zM5 13.2v3.3c0 1.7 3.1 3.5 7 3.5s7-1.8 7-3.5v-3.3l-7 3.8-7-3.8z"/></svg>
-        Scholar
-      </a>
-      <a class="chip" href="https://github.com/pmadinei" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5A10.5 10.5 0 0 0 8.7 22c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.4-3.4-1.4-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 0 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .8.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10.5 10.5 0 0 0 12 1.5z"/></svg>
-        GitHub
-      </a>
-      <a class="chip" href="https://www.linkedin.com/in/pmadinei/" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5A2.5 2.5 0 1 0 5 8.5a2.5 2.5 0 0 0-.02-5zM3 9h4v12H3zM9 9h3.8v1.7h.1c.5-1 1.8-2 3.7-2 4 0 4.7 2.6 4.7 6V21h-4v-5.3c0-1.3 0-2.9-1.8-2.9s-2 1.4-2 2.8V21H9z"/></svg>
-        LinkedIn
-      </a>
-      <a class="chip" href="cv.pdf" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>
-        CV
-      </a>
+<header class="hero" id="top" data-rail="Top">
+  <div class="wrap hero-grid">
+    <div>
+      <p class="role-tag"><span class="live"></span><b>PhD Candidate</b> &middot; UC&nbsp;Santa&nbsp;Barbara &middot; Vision &amp; Image Understanding Lab</p>
+      <h1>Parsa<br><em>Madinei</em></h1>
+      <p class="thesis">
+        I study how <span class="h">people look</span> and how <span class="m">vision-language models see</span>, making VLMs more efficient through compression and more human-aligned through gaze and foveated perception.
+      </p>
+      <div class="links">
+        <a class="chip primary" href="mailto:madinei@ucsb.edu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          Email
+        </a>
+        <a class="chip" href="https://scholar.google.com/citations?user=xflZUGAAAAAJ" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 1 9l11 6 9-4.9V17h2V9L12 3zM5 13.2v3.3c0 1.7 3.1 3.5 7 3.5s7-1.8 7-3.5v-3.3l-7 3.8-7-3.8z"/></svg>
+          Scholar
+        </a>
+        <a class="chip" href="https://github.com/pmadinei" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5A10.5 10.5 0 0 0 8.7 22c.5.1.7-.2.7-.5v-1.7c-2.8.6-3.4-1.4-3.4-1.4-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 0 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .8.1-.7.4-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.4 9.4 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5A10.5 10.5 0 0 0 12 1.5z"/></svg>
+          GitHub
+        </a>
+        <a class="chip" href="https://www.linkedin.com/in/pmadinei/" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5A2.5 2.5 0 1 0 5 8.5a2.5 2.5 0 0 0-.02-5zM3 9h4v12H3zM9 9h3.8v1.7h.1c.5-1 1.8-2 3.7-2 4 0 4.7 2.6 4.7 6V21h-4v-5.3c0-1.3 0-2.9-1.8-2.9s-2 1.4-2 2.8V21H9z"/></svg>
+          LinkedIn
+        </a>
+        <a class="chip" href="cv.pdf" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6"/></svg>
+          CV
+        </a>
+      </div>
     </div>
+
+    <!-- Gaze-contingent portrait: sharp at the fixation, merged into coarser
+         "visual tokens" with eccentricity. Falls back to the plain photo. -->
+    <figure class="viewer" style="margin:0">
+      <div class="viewer-frame" id="viewer">
+        <img src="assets/parsa.jpg" width="880" height="880" alt="Portrait of Parsa Madinei outdoors in the mountains">
+        <canvas id="portrait" aria-hidden="true"></canvas>
+        <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+        <span class="viewer-tag">Foveated tokens</span>
+      </div>
+      <figcaption>
+        <div class="readout" aria-hidden="true">
+          <span>fixation<b id="ro-fix">01</b></span>
+          <span>gaze (x, y)<b id="ro-xy">0.50, 0.40</b></span>
+          <span>visual tokens<b id="ro-tok">576 / 576</b></span>
+        </div>
+        <p class="viewer-hint">Hover or tap the photo to steer the fovea.</p>
+      </figcaption>
+    </figure>
   </div>
 </header>
 
 <!-- ===================== ABOUT ===================== -->
-<section id="about" class="about">
+<section id="about" class="about" data-rail="About">
   <div class="wrap">
-    <p class="eyebrow">About</p>
-    <p>I'm a PhD candidate in Psychological &amp; Brain Sciences at <strong>UC Santa Barbara</strong>, advised by Dr. Miguel Eckstein in the <a class="inline" href="https://viu.psych.ucsb.edu/" target="_blank" rel="noopener">Vision &amp; Image Understanding Lab</a>. My work sits at the intersection of computer vision, vision-language models, and human visual perception.</p>
-    <p>I'm interested in a two-way exchange between minds and models: using what we know about <strong>eye movements, gaze, and foveated perception</strong> to build more efficient and more aligned multimodal AI — and using those models, in turn, as instruments for understanding how people see. Recently that's meant work on layer pruning and low-rank compression for VLMs, training-free gaze-driven disambiguation for visual question answering, and reinforcement learning for foveated active visual search.</p>
-    <p>I earned my M.S. in Computer Science from UCSB, and my dual B.S. in Computer Science and Biology from the University of Tehran. Outside the lab, you'll usually find me on a tennis court or, in winter, snowboarding.</p>
+    <p class="eyebrow reveal"><b>01</b> About</p>
+    <div class="about-grid">
+      <div class="reveal">
+        <p>I'm a PhD candidate in Psychological &amp; Brain Sciences at <strong>UC Santa Barbara</strong>, advised by Dr. Miguel Eckstein in the <a class="inline" href="https://viu.psych.ucsb.edu/" target="_blank" rel="noopener">Vision &amp; Image Understanding Lab</a>. My work sits at the intersection of computer vision, vision-language models, and human visual perception.</p>
+        <p>I'm interested in a two-way exchange between minds and models: using what we know about <strong>eye movements, gaze, and foveated perception</strong> to build more efficient and more aligned multimodal AI, and using those models, in turn, as instruments for understanding how people see. Recently that's meant layer pruning and low-rank compression for VLMs, training-free gaze-driven disambiguation for visual question answering, and measuring where human and model scene understanding diverge.</p>
+        <p>I earned my M.S. in Computer Science from UCSB, and my dual B.S. in Computer Science and Biology from the University of Tehran. Outside the lab, you'll usually find me on a tennis court or, in winter, snowboarding.</p>
+      </div>
+      <div class="facts reveal">
+        <div><span class="k">Now</span><span class="v"><b>PhD candidate</b>, Psychological &amp; Brain Sciences, UCSB</span></div>
+        <div><span class="k">Lab</span><span class="v">Vision &amp; Image Understanding Lab, with Miguel Eckstein</span></div>
+        <div><span class="k">Focus</span><span class="v">Efficient VLMs &middot; gaze &middot; foveated perception &middot; human&ndash;model alignment</span></div>
+        <div><span class="k">Before</span><span class="v">M.S. Computer Science, UCSB<br>B.S. Computer Science &amp; Biology, University of Tehran</span></div>
+        <div><span class="k">Based</span><span class="v">Santa Barbara, California</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== NEWS ===================== -->
+<section id="news" data-rail="News">
+  <div class="wrap">
+    <p class="eyebrow reveal"><b>02</b> News</p>
+    <h2 class="reveal">Recent <em>fixations</em></h2>
+    <ul class="news reveal">
+      <li><span class="tag">NeurIPS 2026</span><span><b>Counterfactual Semantic Saliency</b>, on the gap between human and VLM scene description, was accepted to NeurIPS 2026.</span></li>
+      <li><span class="tag m">AACL-IJCNLP 2026</span><span><b>PGSVD</b>, our Pareto-guided low-rank compression method for LLMs and VLMs, was accepted to AACL-IJCNLP 2026.</span></li>
+      <li><span class="tag m">arXiv &middot; Oct 2026</span><span>New preprint: <b>Tucker Bottleneck Attention (TuBA)</b> for efficient multi-dimensional sequence modeling.</span></li>
+      <li><span class="tag">CVPR 2026</span><span><b>INTERLACE</b>, interleaved layer pruning for large VLMs, was published in the CVPR 2026 Findings proceedings.</span></li>
+      <li><span class="tag">Dataset &middot; 2026</span><span>The <b>IRIS</b> gaze + speech VQA dataset and study code are publicly available.</span></li>
+    </ul>
   </div>
 </section>
 
 <!-- ===================== RESEARCH ===================== -->
-<section id="research">
+<section id="research" data-rail="Research">
   <div class="wrap">
-    <p class="eyebrow">Research</p>
-    <h2>What I work on</h2>
+    <p class="eyebrow reveal"><b>03</b> Research</p>
+    <h2 class="reveal">Where minds and models <em>look</em></h2>
     <div class="themes">
-      <div class="theme">
-        <span class="n">Efficiency</span>
-        <h3>Efficient vision-language models</h3>
-        <p>Making large multimodal models cheaper to run through interleaved layer pruning, low-rank compression, and visual-token reduction — without giving up accuracy.</p>
-      </div>
-      <div class="theme">
+      <div class="theme h reveal">
         <span class="n">Gaze</span>
         <h3>Gaze &amp; foveated perception for AI</h3>
-        <p>Using human eye-tracking and saccades as a supervisory signal: where people look tells a model where to compute and what a question is really about.</p>
+        <p>Using human eye-tracking and saccades as a signal for models: where people look tells a model where to compute and what a question is really about.</p>
       </div>
-      <div class="theme">
+      <div class="theme m reveal">
+        <span class="n">Efficiency</span>
+        <h3>Efficient vision-language models</h3>
+        <p>Making large multimodal models cheaper to run through interleaved layer pruning, low-rank compression, and low-rank attention, without giving up accuracy.</p>
+      </div>
+      <div class="theme h reveal">
+        <span class="n">Alignment</span>
+        <h3>The human&ndash;VLM scene understanding gap</h3>
+        <p>Counterfactual Semantic Saliency scores an object's importance by the semantic shift its removal causes. Against a large human baseline, VLMs over-rely on large, central, salient objects and under-weight people.</p>
+      </div>
+      <div class="theme m reveal">
         <span class="n">Search</span>
         <h3>Active visual search</h3>
-        <p>Reinforcement-learning agents with a frozen VLM backbone that move a foveated sensor to find targets, modeling search the way the visual system actually does it.</p>
-      </div>
-      <div class="theme">
-        <span class="n">Perception</span>
-        <h3>The human–VLM scene perception gap</h3>
-        <p>Counterfactual Semantic Saliency (CSS) scores an object's importance by the semantic shift its removal causes. Measured against a large human baseline, it reveals a scene-perception gap: VLMs over-rely on large, central objects while under-weighting people.</p>
+        <p>Language-guided, foveated models that move a simulated fovea to find targets, modeling visual search the way the visual system actually does it.</p>
       </div>
     </div>
   </div>
 </section>
 
 <!-- ===================== PUBLICATIONS ===================== -->
-<section id="publications">
+<section id="publications" data-rail="Papers">
   <div class="wrap">
-    <p class="eyebrow">Publications</p>
-    <h2>Selected papers</h2>
+    <p class="eyebrow reveal"><b>04</b> Publications</p>
+    <h2 class="reveal">Papers &amp; <em>preprints</em></h2>
 
-    <!-- INTERLACE -->
-    <article class="pub">
-      <div class="pub-meta">
-        <span class="year">2026</span>
-        <span class="pub-venue">CVPR 2026</span>
-      </div>
-      <div>
-        <a class="pub-title" href="https://arxiv.org/abs/2511.19676" target="_blank" rel="noopener">INTERLACE: Interleaved Layer Pruning and Efficient Adaptation in Large Vision-Language Models</a>
-        <p class="pub-authors"><b>Parsa Madinei</b>, Ryan Solgi, Ziqi Wen, Jonathan Skaza, Miguel P. Eckstein, Ramtin Pedarsani</p>
-        <p class="pub-sum">A finetune-freeze framework that analyzes triplets of consecutive layers to prune local redundancy. Retains ~89% of performance after dropping 25% of layers, using just 1% of FineVision for a single epoch.</p>
-        <div class="pub-links">
-          <a href="https://pmadinei.github.io/Interlace/" target="_blank" rel="noopener">Project Page</a>
-          <a href="https://openaccess.thecvf.com/content/CVPR2026F/html/Madinei_INTERLACE_Interleaved_Layer_Pruning_and_Efficient_Adaptation_in_Large_Vision-Language_CVPRF_2026_paper.html" target="_blank" rel="noopener">Paper</a>
-          <a href="https://github.com/pmadinei/Interlace" target="_blank" rel="noopener">Code</a>
-        </div>
-      </div>
-    </article>
+    <div class="filters reveal" role="group" aria-label="Filter publications">
+      <button type="button" data-filter="all" aria-pressed="true">All</button>
+      <button type="button" data-filter="gaze" aria-pressed="false">Gaze &amp; perception</button>
+      <button type="button" data-filter="eff" aria-pressed="false">Efficient models</button>
+    </div>
 
-    <!-- IRIS -->
-    <article class="pub">
-      <div class="pub-meta">
-        <span class="year">2026</span>
-        <span class="pub-venue">IEEE SMC Submission</span>
-      </div>
-      <div>
-        <a class="pub-title" href="https://arxiv.org/abs/2602.16138" target="_blank" rel="noopener">IRIS: Intent Resolution via Inference-time Saccades for Open-Ended VQA in Large Vision-Language Models</a>
-        <p class="pub-authors"><b>Parsa Madinei</b>, Srijita Karmakar, Russell A. Cohen Hoffing, Felix Gervitz, Miguel P. Eckstein</p>
-        <p class="pub-sum">A training-free method that conditions VLM representations on human gaze around speech onset to resolve ambiguous questions — more than doubling accuracy on ambiguous VQA (35% → 77%) with no change to model parameters. Introduces a new real-time gaze + speech + image VQA paradigm and dataset.</p>
-        <div class="pub-links">
-          <a href="https://arxiv.org/abs/2602.16138" target="_blank" rel="noopener">arXiv:2602.16138</a>
-          <a href="https://arxiv.org/pdf/2602.16138" target="_blank" rel="noopener">PDF</a>
-          <a href="#" target="_blank" rel="noopener">Code</a>
-        </div>
-      </div>
-    </article>
+    <div id="pubs">
+    <p class="year-mark" data-year>2026</p>
 
     <!-- Counterfactual Semantic Saliency -->
-    <article class="pub">
-      <div class="pub-meta">
-        <span class="year">2026</span>
-        <span class="pub-venue">NeurIPS Submission</span>
+    <article class="pub reveal" data-tags="gaze">
+      <div class="glyph" aria-hidden="true">
+        <svg viewBox="0 0 64 64"><rect x="6" y="12" width="52" height="40" rx="4"/><path d="M6 44l13-13 9 8 10-12 20 19"/><circle class="h d" cx="22" cy="24" r="7"/><path class="h" d="M19 21l6 6M25 21l-6 6"/><circle class="mf" cx="46" cy="22" r="2.6"/></svg>
       </div>
       <div>
-        <a class="pub-title" href="https://arxiv.org/abs/2605.13047" target="_blank" rel="noopener">Revealing the Gap in Human and VLM Scene Perception through Counterfactual Semantic Saliency</a>
+        <div class="pub-top"><span class="venue accent">NeurIPS 2026</span><span class="kind">Conference</span></div>
+        <h3><a href="https://arxiv.org/abs/2605.13047" target="_blank" rel="noopener">Revealing the Gap in Human and VLM Scene Description through Counterfactual Semantic Saliency</a></h3>
         <p class="pub-authors">Ziqi Wen, <b>Parsa Madinei</b>, Miguel P. Eckstein</p>
-        <p class="pub-sum">A black-box, model-agnostic framework (CSS) that scores object importance by the semantic shift caused when an object is causally ablated from a scene. Benchmarking 19 VLMs against a 16,289-response human baseline reveals a pervasive perception gap — models over-rely on large, central, high-saliency objects and under-weight people — with size bias as the primary driver of the divergence.</p>
+        <p class="pub-sum">CSS is a black-box, model-agnostic framework that scores an object's importance by the semantic shift caused when it is causally ablated from a scene. Tested against a human psychophysics baseline of 16,603 responses over 307 natural scenes and 1,306 counterfactual variants, VLMs over-rely on object size, centrality, and low-level saliency, and are less sensitive than people to the presence of humans.</p>
         <div class="pub-links">
-          <a href="https://arxiv.org/abs/2605.13047" target="_blank" rel="noopener">arXiv:2605.13047</a>
+          <a href="https://arxiv.org/abs/2605.13047" target="_blank" rel="noopener">arXiv</a>
           <a href="https://arxiv.org/pdf/2605.13047" target="_blank" rel="noopener">PDF</a>
-          <a href="https://github.com/starsky77/Counterfactual-Semantic-Saliency" target="_blank" rel="noopener">Code</a>
+          <a href="https://github.com/starsky77/Counterfactual-Semantic-Saliency-Data" target="_blank" rel="noopener">Code &amp; data</a>
         </div>
       </div>
     </article>
 
     <!-- PGSVD -->
-    <article class="pub">
-      <div class="pub-meta">
-        <span class="year">2026</span>
-        <span class="pub-venue">EMNLP Submission</span>
+    <article class="pub reveal" data-tags="eff">
+      <div class="glyph" aria-hidden="true">
+        <svg viewBox="0 0 64 64"><path d="M10 8v46h46"/><path class="m" d="M16 14c2 18 12 30 36 34"/><circle class="mf" cx="18.500" cy="24" r="2.6"/><circle class="mf" cx="27" cy="36" r="2.6"/><circle class="mf" cx="40" cy="44.500" r="2.6"/><circle class="hf" cx="38" cy="26" r="2.2"/><circle class="hf" cx="47" cy="34" r="2.2"/><circle class="hf" cx="30" cy="20" r="2.2"/></svg>
       </div>
       <div>
-        <a class="pub-title" href="https://arxiv.org/abs/2510.05544" target="_blank" rel="noopener">Activation-Informed Pareto-Guided Low-Rank Compression for Efficient LLM/VLM</a>
+        <div class="pub-top"><span class="venue accent">AACL-IJCNLP 2026</span><span class="kind">Conference</span></div>
+        <h3><a href="https://arxiv.org/abs/2510.05544" target="_blank" rel="noopener">Activation-Informed Pareto-Guided Low-Rank Compression for Efficient LLM/VLM</a></h3>
         <p class="pub-authors">Ryan Solgi, <b>Parsa Madinei</b>, Jiayi Tian, Rupak Swaminathan, Jing Liu, Nathan Susanj, Zheng Zhang</p>
-        <p class="pub-sum">PGSVD — a zero-shot compression pipeline that bounds loss change via activation-based errors and casts low-rank compression as bi-objective optimization, yielding Pareto-optimal heterogeneous ranks with better accuracy and inference speedup.</p>
+        <p class="pub-sum">PGSVD is a zero-shot compression pipeline that bounds the change in network loss via layer-wise activation-based errors and casts low-rank compression as a bi-objective problem, where a single uniform tolerance yields Pareto-optimal heterogeneous ranks. Better accuracy at the same compression level, with inference speedup, on both LLMs and VLMs.</p>
         <div class="pub-links">
-          <a href="https://arxiv.org/abs/2510.05544" target="_blank" rel="noopener">arXiv:2510.05544</a>
+          <a href="https://arxiv.org/abs/2510.05544" target="_blank" rel="noopener">arXiv</a>
           <a href="https://arxiv.org/pdf/2510.05544" target="_blank" rel="noopener">PDF</a>
         </div>
       </div>
     </article>
 
-    <p style="font-family:'Space Mono',monospace;font-size:12.5px;color:var(--muted);margin-top:26px;">
-      Full list on <a href="https://scholar.google.com/citations?user=xflZUGAAAAAJ" target="_blank" rel="noopener" style="color:var(--fovea-deep);text-decoration:none;border-bottom:1px solid rgba(181,60,35,.3);">Google&nbsp;Scholar</a>.
+    <!-- INTERLACE -->
+    <article class="pub reveal" data-tags="eff">
+      <div class="glyph" aria-hidden="true">
+        <svg viewBox="0 0 64 64"><rect class="d" x="12" y="8" width="40" height="6" rx="2"/><rect class="h" x="12" y="17" width="40" height="6" rx="2"/><rect class="m" x="12" y="26" width="40" height="6" rx="2"/><rect class="d" x="12" y="35" width="40" height="6" rx="2"/><rect class="h" x="12" y="44" width="40" height="6" rx="2"/><rect class="m" x="12" y="53" width="40" height="6" rx="2"/></svg>
+      </div>
+      <div>
+        <div class="pub-top"><span class="venue accent">CVPR 2026 &middot; Findings</span><span class="kind">Conference &middot; first author</span></div>
+        <h3><a href="https://pmadinei.github.io/Interlace/" target="_blank" rel="noopener">INTERLACE: Interleaved Layer Pruning and Efficient Adaptation in Large Vision-Language Models</a></h3>
+        <p class="pub-authors"><b>Parsa Madinei</b>, Ryan Solgi, Ziqi Wen, Jonathan Skaza, Miguel P. Eckstein, Ramtin Pedarsani</p>
+        <p class="pub-sum">A finetune-freeze framework that analyzes triplets of consecutive layers: prune the most redundant of the first two, finetune the survivor, and freeze the third as a stable anchor. Retains 88.9% of average performance after dropping 25% of the network, finetuning on just 1% of FineVision for one epoch.</p>
+        <div class="pub-links">
+          <a href="https://pmadinei.github.io/Interlace/" target="_blank" rel="noopener">Project page</a>
+          <a href="https://openaccess.thecvf.com/content/CVPR2026F/html/Madinei_INTERLACE_Interleaved_Layer_Pruning_and_Efficient_Adaptation_in_Large_Vision-Language_CVPRF_2026_paper.html" target="_blank" rel="noopener">Paper</a>
+          <a href="https://arxiv.org/abs/2511.19676" target="_blank" rel="noopener">arXiv</a>
+          <a href="https://github.com/pmadinei/Interlace" target="_blank" rel="noopener">Code</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- TuBA -->
+    <article class="pub reveal" data-tags="eff">
+      <div class="glyph" aria-hidden="true">
+        <svg viewBox="0 0 64 64"><path d="M8 22l18-9 18 9v22l-18 9-18-9z"/><path d="M8 22l18 9 18-9M26 31v22"/><path class="m" d="M44 34l7-3.500 7 3.500v9l-7 3.500-7-3.500z"/><path class="m" d="M44 34l7 3.500 7-3.500M51 37.500v9"/><path class="h d" d="M30 12c8-6 18-2 21 14"/></svg>
+      </div>
+      <div>
+        <div class="pub-top"><span class="venue">arXiv 2026</span><span class="kind">Preprint</span></div>
+        <h3><a href="https://arxiv.org/abs/2610.09090" target="_blank" rel="noopener">Tucker Bottleneck Attention for Multi-Dimensional Sequence Modeling</a></h3>
+        <p class="pub-authors">Ryan Solgi, <b>Parsa Madinei</b>, Zheng Zhang</p>
+        <p class="pub-sum">TuBA projects hidden tensors into compact Tucker cores, runs self-attention on the cores, and writes the update back to the ambient space for subquadratic global token mixing. Versus standard self-attention it cuts error and computation by up to 24.7% and 66.6% on video prediction and 37.1% and 85.1% on autoregressive weather forecasting, with speedups up to 4.27&times;.</p>
+        <div class="pub-links">
+          <a href="https://arxiv.org/abs/2610.09090" target="_blank" rel="noopener">arXiv</a>
+          <a href="https://arxiv.org/pdf/2610.09090" target="_blank" rel="noopener">PDF</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- IRIS -->
+    <article class="pub reveal" data-tags="gaze">
+      <div class="glyph" aria-hidden="true">
+        <svg viewBox="0 0 64 64"><path d="M4 32c8-12 17-18 28-18s20 6 28 18c-8 12-17 18-28 18S12 44 4 32z"/><circle class="h" cx="32" cy="32" r="10"/><circle class="hf" cx="32" cy="32" r="4"/><path class="m d" d="M32 32L50 12"/><circle class="mf" cx="50" cy="12" r="2.6"/></svg>
+      </div>
+      <div>
+        <div class="pub-top"><span class="venue">arXiv 2026</span><span class="kind">Preprint &middot; first author</span></div>
+        <h3><a href="https://arxiv.org/abs/2602.16138" target="_blank" rel="noopener">IRIS: Intent Resolution via Inference-time Saccades for Open-Ended VQA in Large Vision-Language Models</a></h3>
+        <p class="pub-authors"><b>Parsa Madinei</b>*, Srijita Karmakar*, Russell A. Cohen Hoffing, Felix Gervitz, Miguel P. Eckstein <span style="white-space:nowrap">(* equal contribution)</span></p>
+        <p class="pub-sum">A training-free method that uses real-time eye tracking to resolve ambiguous questions. Fixations closest to speech onset are the most informative, more than doubling accuracy on ambiguous VQA (35.2% &rarr; 77.2%) while preserving performance on unambiguous queries. Comes with a new gaze + speech + image benchmark and a real-time interactive protocol.</p>
+        <div class="pub-links">
+          <a href="https://arxiv.org/abs/2602.16138" target="_blank" rel="noopener">arXiv</a>
+          <a href="https://arxiv.org/pdf/2602.16138" target="_blank" rel="noopener">PDF</a>
+          <a href="https://github.com/pmadinei/IRIS-Study" target="_blank" rel="noopener">Code</a>
+          <a href="https://doi.org/10.21227/8b8s-1c78" target="_blank" rel="noopener">Dataset</a>
+        </div>
+      </div>
+    </article>
+
+    <p class="year-mark" data-year>2025</p>
+
+    <!-- DReX -->
+    <article class="pub reveal" data-tags="gaze">
+      <div class="glyph" aria-hidden="true">
+        <svg viewBox="0 0 64 64"><rect class="h" x="6" y="10" width="16" height="14" rx="3"/><rect class="m" x="6" y="40" width="16" height="14" rx="3"/><path d="M22 17c12 0 10 15 20 15M22 47c12 0 10-15 20-15"/><circle cx="46" cy="32" r="5"/><path d="M51 32h8M56 29l3 3-3 3"/></svg>
+      </div>
+      <div>
+        <div class="pub-top"><span class="venue">arXiv 2025</span><span class="kind">Preprint</span></div>
+        <h3><a href="https://arxiv.org/abs/2511.16991" target="_blank" rel="noopener">DReX: Pure Vision Fusion of Self-Supervised and Convolutional Representations for Image Complexity Prediction</a></h3>
+        <p class="pub-authors">Jonathan Skaza, <b>Parsa Madinei</b>, Ziqi Wen, Miguel P. Eckstein</p>
+        <p class="pub-sum">A vision-only model that fuses multi-scale ResNet-50 features with DINOv3 ViT-S/16 representations through learnable attention to predict how complex people find an image. State of the art on IC9600 (Pearson r&nbsp;=&nbsp;0.9581) with roughly 21.5&times; fewer learnable parameters than prior multimodal approaches.</p>
+        <div class="pub-links">
+          <a href="https://arxiv.org/abs/2511.16991" target="_blank" rel="noopener">arXiv</a>
+          <a href="https://arxiv.org/pdf/2511.16991" target="_blank" rel="noopener">PDF</a>
+        </div>
+      </div>
+    </article>
+
+    <!-- VSS 2025 -->
+    <article class="pub reveal" data-tags="gaze">
+      <div class="glyph" aria-hidden="true">
+        <svg viewBox="0 0 64 64"><circle class="d" cx="28" cy="28" r="21"/><circle cx="28" cy="28" r="13"/><circle class="h" cx="28" cy="28" r="5.500"/><path d="M43 43l14 14"/><circle class="mf" cx="48" cy="14" r="2.6"/><path class="m d" d="M32 25l14-10"/></svg>
+      </div>
+      <div>
+        <div class="pub-top"><span class="venue">Journal of Vision 2025</span><span class="kind">VSS abstract &middot; first author</span></div>
+        <h3><a href="https://doi.org/10.1167/jov.25.9.2777" target="_blank" rel="noopener">Language Guided Search with Multi-Modal Foveated Deep Neural Network Finds Objects at Unexpected Locations</a></h3>
+        <p class="pub-authors"><b>Parsa Madinei</b>, Miguel P. Eckstein</p>
+        <p class="pub-sum">A language-guided, multi-modal foveated network for visual search that can locate target objects even when they appear where scene context says they shouldn't be. <i>Journal of Vision</i> 25(9):2777.</p>
+        <div class="pub-links">
+          <a href="https://doi.org/10.1167/jov.25.9.2777" target="_blank" rel="noopener">Abstract</a>
+        </div>
+      </div>
+    </article>
+
+    <p class="year-mark" data-year>2024</p>
+
+    <!-- ARChef -->
+    <article class="pub reveal" data-tags="other">
+      <div class="glyph" aria-hidden="true">
+        <svg viewBox="0 0 64 64"><rect x="18" y="6" width="28" height="52" rx="5"/><path d="M29 52h6"/><path class="h" d="M24 20v-5h5M40 20v-5h-5M24 38v5h5M40 38v5h-5"/><circle class="m" cx="32" cy="29" r="5"/></svg>
+      </div>
+      <div>
+        <div class="pub-top"><span class="venue">arXiv 2024</span><span class="kind">Preprint</span></div>
+        <h3><a href="https://arxiv.org/abs/2412.00627" target="_blank" rel="noopener">ARChef: An iOS-Based Augmented Reality Cooking Assistant Powered by Multimodal Gemini LLM</a></h3>
+        <p class="pub-authors">Rithik Vir, <b>Parsa Madinei</b></p>
+        <p class="pub-sum">A prototype iOS app that combines ARKit with a multimodal LLM to recognize ingredients in the camera's view and suggest personalized recipes with nutritional information, evaluated over three rounds of user-experience surveys.</p>
+        <div class="pub-links">
+          <a href="https://arxiv.org/abs/2412.00627" target="_blank" rel="noopener">arXiv</a>
+          <a href="https://arxiv.org/pdf/2412.00627" target="_blank" rel="noopener">PDF</a>
+        </div>
+      </div>
+    </article>
+    </div>
+
+    <p class="scholar-note">
+      Always-current list on <a class="inline" href="https://scholar.google.com/citations?user=xflZUGAAAAAJ" target="_blank" rel="noopener">Google&nbsp;Scholar</a>.
     </p>
   </div>
 </section>
 
-<!-- ===================== TEACHING ===================== -->
+<!-- ===================== TEACHING (hidden) ===================== -->
 <!-- <section id="teaching">
   <div class="wrap">
     <p class="eyebrow">Teaching</p>
@@ -397,7 +711,7 @@
   </div>
 </section> -->
 
-<!-- ===================== EXPERIENCE ===================== -->
+<!-- ===================== EXPERIENCE (hidden) ===================== -->
 <!-- <section id="experience">
   <div class="wrap">
     <p class="eyebrow">Experience &amp; Education</p>
@@ -433,124 +747,310 @@
 </section> -->
 
 <!-- ===================== CONTACT ===================== -->
-<section id="contact">
+<section id="contact" data-rail="Contact">
   <div class="wrap">
-    <p class="eyebrow">Contact</p>
-    <h2>Get in touch</h2>
-    <p style="max-width:54ch;">I'm always glad to talk. The fastest way to reach me is email!</p>
-    <div class="contact-grid">
-      <a class="chip" href="mailto:madinei@ucsb.edu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
-        madinei@ucsb.edu
-      </a>
-      <a class="chip" href="https://scholar.google.com/citations?user=xflZUGAAAAAJ" target="_blank" rel="noopener">Google Scholar</a>
-      <a class="chip" href="https://github.com/pmadinei" target="_blank" rel="noopener">GitHub</a>
-      <a class="chip" href="https://www.linkedin.com/in/pmadinei/" target="_blank" rel="noopener">LinkedIn</a>
+    <div class="contact-card reveal">
+      <p class="eyebrow"><b>05</b> Contact</p>
+      <h2>Get in <em>touch</em></h2>
+      <p>I'm always glad to talk about research, collaborations, or anything at the intersection of human vision and multimodal AI. Email is the fastest way to reach me.</p>
+      <div class="links">
+        <a class="chip primary" href="mailto:madinei@ucsb.edu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+          madinei@ucsb.edu
+        </a>
+        <a class="chip" href="https://scholar.google.com/citations?user=xflZUGAAAAAJ" target="_blank" rel="noopener">Google Scholar</a>
+        <a class="chip" href="https://github.com/pmadinei" target="_blank" rel="noopener">GitHub</a>
+        <a class="chip" href="https://www.linkedin.com/in/pmadinei/" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
     </div>
   </div>
 </section>
 
+</main>
+
 <footer>
   <div class="wrap">
-    <p>&copy; <span id="yr"></span> Parsa Madinei</p>
+    <p>&copy; <span id="yr">2026</span> Parsa Madinei</p>
     <p>Santa Barbara, California &middot; <a href="mailto:madinei@ucsb.edu">madinei@ucsb.edu</a></p>
   </div>
 </footer>
 
 <script>
+(function(){
+  'use strict';
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.getElementById('yr').textContent = new Date().getFullYear();
 
-  /* ===== Foveation signature =====
-     A grid of sampling points. Dots near the "gaze point" are large, sharp and
-     warm; they fall off to small, faint, cool dots in the periphery — the
-     fovea→periphery acuity gradient. The gaze point follows the cursor over the
-     hero and drifts in small saccade-like jumps when idle. Static if the visitor
-     prefers reduced motion. */
+  /* ============ scroll reveal ============ */
+  var reveals = document.querySelectorAll('.reveal');
+  if('IntersectionObserver' in window && !reduce){
+    var ro = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); ro.unobserve(e.target); } });
+    }, { rootMargin:'0px 0px -8% 0px', threshold:0.05 });
+    reveals.forEach(function(el){ ro.observe(el); });
+  } else {
+    reveals.forEach(function(el){ el.classList.add('in'); });
+  }
+
+  /* ============ publication filter ============ */
+  var buttons = document.querySelectorAll('.filters button');
+  var pubs = Array.prototype.slice.call(document.querySelectorAll('#pubs .pub'));
+  var marks = Array.prototype.slice.call(document.querySelectorAll('#pubs [data-year]'));
+  buttons.forEach(function(btn){
+    var f = btn.dataset.filter;
+    var n = f === 'all' ? pubs.length : pubs.filter(function(p){ return p.dataset.tags === f; }).length;
+    var sup = document.createElement('sup'); sup.textContent = n; btn.appendChild(sup);
+    btn.addEventListener('click', function(){
+      buttons.forEach(function(b){ b.setAttribute('aria-pressed', String(b === btn)); });
+      pubs.forEach(function(p){
+        p.hidden = !(f === 'all' || p.dataset.tags === f);
+        if(!p.hidden) p.classList.add('in');
+      });
+      // hide a year heading when none of its papers are visible
+      marks.forEach(function(m){
+        var el = m.nextElementSibling, any = false;
+        while(el && !el.hasAttribute('data-year')){ if(el.classList.contains('pub') && !el.hidden) any = true; el = el.nextElementSibling; }
+        m.hidden = !any;
+      });
+    });
+  });
+
+  /* ============ scanpath rail + active nav ============ */
   (function(){
-    const canvas = document.getElementById('fovea');
-    if(!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const hero = canvas.parentElement;
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var rail = document.getElementById('rail');
+    var secs = Array.prototype.slice.call(document.querySelectorAll('[data-rail]'));
+    var navLinks = document.querySelectorAll('.nav-links a');
+    var STEP = 46, pts = [];
+    rail.style.height = (STEP * (secs.length - 1) + 24) + 'px';
+    var svg = '<svg><polyline points="';
+    secs.forEach(function(s, i){
+      var x = i % 2 ? 23 : 9, y = 12 + i * STEP;
+      pts.push([x, y]); svg += x + ',' + y + ' ';
+    });
+    rail.innerHTML = svg + '"/></svg>';
+    var dots = secs.map(function(s, i){
+      var a = document.createElement('a');
+      a.href = '#' + s.id; a.tabIndex = -1;
+      a.style.left = pts[i][0] + 'px'; a.style.top = pts[i][1] + 'px';
+      a.innerHTML = '<span>' + s.dataset.rail + '</span>';
+      rail.appendChild(a); return a;
+    });
+    function update(){
+      var mid = window.scrollY + window.innerHeight * 0.38, cur = 0;
+      secs.forEach(function(s, i){ if(s.offsetTop <= mid) cur = i; });
+      if(window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) cur = secs.length - 1;
+      dots.forEach(function(d, i){ d.classList.toggle('on', i === cur); });
+      navLinks.forEach(function(l){ l.classList.toggle('on', l.getAttribute('href') === '#' + secs[cur].id); });
+    }
+    window.addEventListener('scroll', update, { passive:true });
+    window.addEventListener('resize', update);
+    update();
+  })();
 
-    const SP = 27;          // grid spacing
-    const R  = 250;         // foveal radius
-    const warm = [222, 82, 55];
-    const cool = [122, 134, 140];
-
-    let W = 0, H = 0, dpr = 1, dots = [];
-    let fx = 0, fy = 0, tx = 0, ty = 0;     // gaze point + target
-    let pointerActive = false, idleTimer = 0, saccadeTimer = 0;
+  /* ============ ambient foveated field ============
+     A fixed lattice of sampling points. Near the pointer (the "fovea") points
+     are large, bright and warm; acuity falls off with eccentricity. */
+  (function(){
+    var c = document.getElementById('field'), ctx = c.getContext('2d');
+    var SP = 30, R = 250, W = 0, H = 0, dpr = 1;
+    var fx = 0, fy = 0, tx = 0, ty = 0, raf = 0, placed = false;
 
     function resize(){
-      const rect = hero.getBoundingClientRect();
       dpr = Math.min(window.devicePixelRatio || 1, 2);
-      W = rect.width; H = rect.height;
-      canvas.width = W * dpr; canvas.height = H * dpr;
-      canvas.style.width = W + 'px'; canvas.style.height = H + 'px';
+      W = window.innerWidth; H = window.innerHeight;
+      c.width = Math.round(W * dpr); c.height = Math.round(H * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      dots = [];
-      for(let y = SP/2; y < H; y += SP)
-        for(let x = SP/2; x < W; x += SP)
-          dots.push([x, y]);
-      if(fx === 0){ fx = tx = W * 0.66; fy = ty = H * 0.46; }
+      if(!placed){ fx = tx = W * 0.88; fy = ty = H * 0.14; }
       draw();
     }
-
     function draw(){
       ctx.clearRect(0, 0, W, H);
-      for(let i = 0; i < dots.length; i++){
-        const dx = dots[i][0] - fx, dy = dots[i][1] - fy;
-        const d = Math.sqrt(dx*dx + dy*dy);
-        let t = 1 - d / R; if(t < 0) t = 0;
-        const acuity = t * t;                         // sharp falloff
-        const rad = 0.7 + acuity * 2.9;
-        const op  = 0.06 + acuity * 0.5;
-        const r = Math.round(cool[0] + (warm[0]-cool[0]) * acuity);
-        const g = Math.round(cool[1] + (warm[1]-cool[1]) * acuity);
-        const b = Math.round(cool[2] + (warm[2]-cool[2]) * acuity);
-        ctx.beginPath();
-        ctx.arc(dots[i][0], dots[i][1], rad, 0, 6.2832);
-        ctx.fillStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + op + ')';
-        ctx.fill();
-      }
-      // fixation ring at the gaze point
+      // periphery: one cheap batched pass
+      ctx.fillStyle = 'rgba(150,165,185,0.13)';
       ctx.beginPath();
-      ctx.arc(fx, fy, 13, 0, 6.2832);
-      ctx.strokeStyle = 'rgba(222,82,55,0.35)';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-    }
-
-    function tick(now){
-      // idle -> auto saccades
-      if(!pointerActive){
-        saccadeTimer -= 16;
-        if(saccadeTimer <= 0){
-          saccadeTimer = 1400 + Math.random() * 1400;
-          tx = W * (0.25 + Math.random() * 0.6);
-          ty = H * (0.22 + Math.random() * 0.6);
+      for(var y = SP / 2; y < H; y += SP)
+        for(var x = SP / 2; x < W; x += SP) ctx.rect(x - 0.75, y - 0.75, 1.5, 1.5);
+      ctx.fill();
+      // fovea: only the points inside the acuity radius
+      var x0 = Math.max(SP / 2, Math.ceil((fx - R - SP / 2) / SP) * SP + SP / 2);
+      var y0 = Math.max(SP / 2, Math.ceil((fy - R - SP / 2) / SP) * SP + SP / 2);
+      for(var yy = y0; yy < Math.min(H, fy + R); yy += SP){
+        for(var xx = x0; xx < Math.min(W, fx + R); xx += SP){
+          var dx = xx - fx, dy = yy - fy, d = Math.sqrt(dx * dx + dy * dy);
+          if(d >= R) continue;
+          var a = 1 - d / R; a *= a;
+          ctx.beginPath();
+          ctx.arc(xx, yy, 0.8 + a * 2.2, 0, 6.2832);
+          ctx.fillStyle = 'rgba(255,' + Math.round(165 - 58 * a) + ',' + Math.round(150 - 76 * a) + ',' + (0.1 + a * 0.55) + ')';
+          ctx.fill();
         }
       }
-      fx += (tx - fx) * 0.085;
-      fy += (ty - fy) * 0.085;
-      draw();
-      requestAnimationFrame(tick);
     }
-
-    hero.addEventListener('pointermove', function(e){
-      const rect = hero.getBoundingClientRect();
-      tx = e.clientX - rect.left;
-      ty = e.clientY - rect.top;
-      pointerActive = true;
-      clearTimeout(idleTimer);
-      idleTimer = setTimeout(function(){ pointerActive = false; saccadeTimer = 600; }, 2200);
-    });
-
+    function tick(){
+      fx += (tx - fx) * 0.16; fy += (ty - fy) * 0.16;
+      draw();
+      raf = (Math.abs(tx - fx) + Math.abs(ty - fy) > 0.4) ? requestAnimationFrame(tick) : 0;
+    }
+    window.addEventListener('pointermove', function(e){
+      if(e.pointerType === 'touch') return;
+      tx = e.clientX; ty = e.clientY; placed = true;
+      if(reduce){ fx = tx; fy = ty; draw(); }
+      else if(!raf) raf = requestAnimationFrame(tick);
+    }, { passive:true });
     window.addEventListener('resize', resize);
     resize();
-    if(!reduce) requestAnimationFrame(tick);
   })();
+
+  /* ============ gaze-contingent portrait ============
+     The photo is tiled into a 24x24 patch grid (576 "visual tokens", like a
+     ViT at 336px / patch 14). Patches near the fixation stay at full
+     resolution; with eccentricity they are merged 2x2 and then 4x4 into single
+     tokens. Idle, the gaze runs a scanpath over the image; the pointer takes
+     over when it enters the frame. */
+  (function(){
+    var frame = document.getElementById('viewer');
+    var canvas = document.getElementById('portrait');
+    var img = frame.querySelector('img');
+    if(!canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+    var roFix = document.getElementById('ro-fix'), roXY = document.getElementById('ro-xy'), roTok = document.getElementById('ro-tok');
+
+    var N = 24, R_MID = 0.26, R_FAR = 0.5;
+    var S = 0, dpr = 1, mid = null, far = null;
+    // salient regions a viewer tends to fixate (normalized x, y, weight)
+    var AOI = [[0.41,0.37,4],[0.60,0.39,4],[0.50,0.47,3],[0.49,0.57,4],[0.47,0.19,1.5],
+               [0.80,0.30,0.7],[0.16,0.62,0.7],[0.49,0.80,0.8]];
+    var gx = 0.5, gy = 0.4, tx = 0.5, ty = 0.4;
+    var trail = [{ x:0.5, y:0.4, d:1 }], count = 1, nextAt = 0, pointer = false, visible = true, raf = 0;
+
+    function mosaic(n){
+      var o = document.createElement('canvas'); o.width = o.height = n;
+      var g = o.getContext('2d'); g.imageSmoothingQuality = 'high';
+      // downscale in two steps for a cleaner average
+      var t = document.createElement('canvas'); t.width = t.height = n * 4;
+      t.getContext('2d').drawImage(img, 0, 0, n * 4, n * 4);
+      g.drawImage(t, 0, 0, n, n);
+      return o;
+    }
+    function resize(){
+      var r = frame.getBoundingClientRect();
+      if(!r.width) return;
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      S = r.width;
+      canvas.width = canvas.height = Math.round(S * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      render();
+    }
+    function pick(){
+      var total = 0, i; for(i = 0; i < AOI.length; i++) total += AOI[i][2];
+      var r = Math.random() * total;
+      for(i = 0; i < AOI.length; i++){ r -= AOI[i][2]; if(r <= 0) break; }
+      var a = AOI[Math.min(i, AOI.length - 1)];
+      return { x: a[0] + (Math.random() - 0.5) * 0.06, y: a[1] + (Math.random() - 0.5) * 0.06 };
+    }
+    function fixate(x, y, d){
+      trail.push({ x:x, y:y, d:d }); if(trail.length > 6) trail.shift();
+      count++; tx = x; ty = y;
+    }
+    function tile(src, n, i, j, size, alpha){
+      ctx.globalAlpha = alpha;
+      ctx.drawImage(src, i, j, 1, 1, i * size, j * size, size + 0.5, size + 0.5);
+      ctx.globalAlpha = 1;
+      ctx.strokeRect(i * size + 0.5, j * size + 0.5, size, size);
+    }
+    function render(){
+      if(!S || !mid) return;
+      var p = S / N, tokens = 0, i, j, a, b, d;
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(img, 0, 0, S, S);
+      ctx.imageSmoothingEnabled = false;
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+      for(j = 0; j < N / 4; j++) for(i = 0; i < N / 4; i++){
+        d = Math.hypot((i + 0.5) * 4 / N - gx, (j + 0.5) * 4 / N - gy);
+        if(d > R_FAR){ tile(far, N / 4, i, j, p * 4, 0.74); tokens++; continue; }
+        for(b = 0; b < 2; b++) for(a = 0; a < 2; a++){
+          var ii = i * 2 + a, jj = j * 2 + b;
+          d = Math.hypot((ii + 0.5) * 2 / N - gx, (jj + 0.5) * 2 / N - gy);
+          if(d > R_MID){ tile(mid, N / 2, ii, jj, p * 2, 0.6); tokens++; }
+          else tokens += 4;
+        }
+      }
+      // scanpath: saccades as lines, fixations as circles sized by duration
+      ctx.lineWidth = 1.5;
+      for(i = 1; i < trail.length; i++){
+        var f0 = trail[i - 1], f1 = trail[i], age = (i / trail.length);
+        ctx.strokeStyle = 'rgba(255,107,74,' + (0.15 + age * 0.5) + ')';
+        ctx.beginPath(); ctx.moveTo(f0.x * S, f0.y * S); ctx.lineTo(f1.x * S, f1.y * S); ctx.stroke();
+      }
+      for(i = 0; i < trail.length - 1; i++){
+        var f = trail[i], al = 0.25 + (i / trail.length) * 0.5;
+        ctx.beginPath(); ctx.arc(f.x * S, f.y * S, 4 + f.d * 5, 0, 6.2832);
+        ctx.fillStyle = 'rgba(255,107,74,' + al * 0.35 + ')'; ctx.fill();
+        ctx.strokeStyle = 'rgba(255,107,74,' + al + ')'; ctx.stroke();
+      }
+      // current fixation: foveal ring + crosshair
+      var cx = gx * S, cy = gy * S;
+      ctx.strokeStyle = 'rgba(255,107,74,0.95)';
+      ctx.beginPath(); ctx.arc(cx, cy, R_MID * S * 0.8, 0, 6.2832);
+      ctx.setLineDash([3, 6]); ctx.lineWidth = 1; ctx.stroke(); ctx.setLineDash([]);
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(cx, cy, 9, 0, 6.2832); ctx.stroke();
+      ctx.beginPath(); ctx.arc(cx, cy, 2, 0, 6.2832); ctx.fillStyle = '#FF6B4A'; ctx.fill();
+
+      roFix.textContent = (count < 10 ? '0' : '') + count;
+      roXY.textContent = gx.toFixed(2) + ', ' + gy.toFixed(2);
+      roTok.textContent = tokens + ' / ' + (N * N) + '  (−' + Math.round((1 - tokens / (N * N)) * 100) + '%)';
+    }
+    function loop(now){
+      raf = 0;
+      if(!visible || document.hidden) return;
+      if(!pointer && now >= nextAt){
+        var t = pick(), dur = 320 + Math.random() * 620;
+        fixate(t.x, t.y, Math.min(1, dur / 900));
+        nextAt = now + dur;
+      }
+      // saccades are fast and ballistic; fixations sit nearly still
+      gx += (tx - gx) * 0.32; gy += (ty - gy) * 0.32;
+      render();
+      raf = requestAnimationFrame(loop);
+    }
+    function start(){ if(!raf && !reduce) raf = requestAnimationFrame(loop); }
+
+    function steer(e){
+      var r = frame.getBoundingClientRect();
+      var x = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
+      var y = Math.min(1, Math.max(0, (e.clientY - r.top) / r.height));
+      pointer = true; tx = x; ty = y;
+      var last = trail[trail.length - 1];
+      if(Math.hypot(x - last.x, y - last.y) > 0.16) fixate(x, y, 0.5);
+      if(reduce){ gx = x; gy = y; render(); }
+    }
+    frame.addEventListener('pointermove', steer);
+    frame.addEventListener('pointerdown', steer);
+    function release(){ pointer = false; nextAt = performance.now() + 500; }
+    frame.addEventListener('pointerleave', release);
+    frame.addEventListener('pointercancel', release);
+
+    function init(){
+      try { mid = mosaic(N / 2); far = mosaic(N / 4); } catch(err){ return; }
+      resize();
+      frame.classList.add('ready');
+      if(reduce){
+        // static, still foveated: one representative scanpath
+        trail = [{x:0.47,y:0.17,d:0.4},{x:0.60,y:0.39,d:0.8},{x:0.49,y:0.57,d:0.6},{x:0.41,y:0.37,d:1}];
+        count = trail.length; gx = tx = 0.41; gy = ty = 0.37; render();
+      }
+      start();
+    }
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(function(es){ visible = es[0].isIntersecting; if(visible) start(); }).observe(frame);
+    }
+    document.addEventListener('visibilitychange', function(){ if(!document.hidden) start(); });
+    window.addEventListener('resize', resize);
+    if(img.complete && img.naturalWidth) init(); else img.addEventListener('load', init);
+  })();
+})();
 </script>
 </body>
 </html>
